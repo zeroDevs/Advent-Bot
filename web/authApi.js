@@ -30,4 +30,8 @@ router.get('/discord/callback', catchAsync(async (req, res) => {
   });
 }));
 
+router.post('/submit', (req, res) => {
+    console.log(req);
+});
+
 module.exports = router;

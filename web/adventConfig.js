@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 
 const apiRoute = require('./authApi.js');
 
-const db_name = "aoc_2019";
+const db_name = "AOC";
 
 module.exports = (client) => {
     console.log(client.settings.mlabs)
@@ -24,7 +24,7 @@ module.exports = (client) => {
 
         MongoClient.connect(client.settings.mlabs, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
-            var dbo = db.db("aoc_2019");
+            var dbo = db.db(db_name);
             dbo.collection("snippets").find({ dayNumber: req.query.day }).toArray(function (err, result) {
                 if (err) throw err;
                 res.json(result);
@@ -37,7 +37,7 @@ module.exports = (client) => {
 
         MongoClient.connect(client.settings.mlabs, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
-            var dbo = db.db("aoc_2019");
+            var dbo = db.db(db_name);
             dbo.collection("snippets").find({}).toArray(function (err, result) {
                 if (err) throw err;
                 res.json(result);
@@ -50,7 +50,7 @@ module.exports = (client) => {
     app.get('/user', (req, res) => {
         MongoClient.connect(client.settings.mlabs, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
-            var dbo = db.db("aoc_2019");
+            var dbo = db.db(db_name);
             dbo.collection("users").find({}).toArray(function (err, result) {
                 if (err) throw err;
                 res.json(result);
