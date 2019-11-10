@@ -8,7 +8,7 @@ const apiRoute = require('./authApi.js');
 const db_name = "AOC";
 
 module.exports = (client) => {
-    console.log(client.settings.mlabs)
+    console.log(client.settings.mongo)
     app.listen(port, function () {
         console.log('Advent - Webserver is running on port:', port);
     });
@@ -22,7 +22,7 @@ module.exports = (client) => {
     app.get('/solutions', function (req, res) {
         console.log(req.query.day);
 
-        MongoClient.connect(client.settings.mlabs, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(client.settings.mongo, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
             var dbo = db.db(db_name);
             dbo.collection("snippets").find({ dayNumber: req.query.day }).toArray(function (err, result) {
@@ -35,7 +35,7 @@ module.exports = (client) => {
 
     app.get('/solutions/all', function (req, res) {
 
-        MongoClient.connect(client.settings.mlabs, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(client.settings.mongo, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
             var dbo = db.db(db_name);
             dbo.collection("snippets").find({}).toArray(function (err, result) {
@@ -48,7 +48,7 @@ module.exports = (client) => {
 
     //route for student list
     app.get('/user', (req, res) => {
-        MongoClient.connect(client.settings.mlabs, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(client.settings.mongo, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
             var dbo = db.db(db_name);
             dbo.collection("users").find({}).toArray(function (err, result) {

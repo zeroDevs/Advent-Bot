@@ -32,6 +32,7 @@ router.get('/discord/callback', catchAsync(async (req, res) => {
 
 router.post('/submit', (req, res) => {
     console.log(req);
+    res.status(200).json({error: null, isSuccessful: "True"});
 });
 
 module.exports = router;
