@@ -2,8 +2,11 @@ const express = require('express');
 const app = express();
 const port = 8001;
 const MongoClient = require('mongodb').MongoClient;
+const bodyParser = require('body-parser');
 
 const apiRoute = require('./authApi.js');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 const db_name = "AOC";
 
