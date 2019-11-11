@@ -16,51 +16,6 @@ module.exports = (client) => {
     return d.getDate();
 }
 
- /*
-    PERMISSION LEVEL FUNCTION
-    This is a very basic permission system for commands which uses "levels"
-    "spaces" are intentionally left black so you can add them if you want.
-    NEVER GIVE ANYONE BUT OWNER THE LEVEL 10! By default this can run any
-    command including the VERY DANGEROUS `eval` and `exec` commands!
-    */
-   client.permlevel = message => {
-    let permlvl = 0;
-
-    const permOrder = client.settings.permLevels.slice(0).sort((p, c) => p.level < c.level ? 1 : -1);
-    
-    while (permOrder.length) {
-      const currentLevel = permOrder.shift();
-      
-      if (message.guild && currentLevel.guildOnly) continue;
-      
-      if (currentLevel.check(message)) {
-
-        permlvl = currentLevel.level;
-        
-        break;
-      }
-    }
-    
-    return permlvl;
-  };
-
-  /*
-  GUILD SETTINGS FUNCTION
-  This function merges the default settings (from config.defaultSettings) with any
-  guild override you might have for particular guild. If no overrides are present,
-  the default settings are used.
-  */
-  client.getGuildSettings = (guild) => {
-    const def = client.settings.general;
-    if (!guild) return def;
-    const returns = {};
-    const overrides = client.settings.get(guild.id) || {};
-    for (const key in def) {
-      returns[key] = overrides[key] || def[key];
-    }
-    // console.log(returns)
-    return returns;
-  };
     /*
     SINGLE-LINE AWAITMESSAGE
     A simple way to grab a single reply, from the user that initiated
@@ -78,66 +33,6 @@ module.exports = (client) => {
       } catch (e) {
         return msg.channel.send("You didnt respond quick enough");
       }
-    };
-  
-  
-    client.loadCommand = (commandName) => {
-      try {
-        console.log(`Loading Command: ${commandName}`);
-        const props = require(`../commands/${commandName}`);
-        if (props.init) {
-          props.init(client);
-        }
-        client.commands.set(props.help.name, props);
-        props.conf.aliases.forEach(alias => {
-          client.aliases.set(alias, props.help.name);
-          console.log(props.help.name + "loaded") 
-        });
-        return false;
-      } catch (e) {
-        return `Unable to load command ${commandName}: ${e}`;
-      }
-    };
-  
-    client.loadCommand = (commandName) => {
-      try {
-        console.log(`Loading Command: ${commandName}`);
-        const props = require(`../commands/${commandName}`);
-        if (props.init) {
-          props.init(client);
-        }
-        client.commands.set(props.help.name, props);
-        props.conf.aliases.forEach(alias => {
-          client.aliases.set(alias, props.help.name);
-          console.log(props.help.name + "loaded") 
-        });
-        return false;
-      } catch (e) {
-        return `Unable to load command ${commandName}: ${e}`;
-      }
-    };
-  
-    client.unloadCommand = async (commandName) => {
-      let command;
-      if (client.commands.has(commandName)) {
-        command = client.commands.get(commandName);
-      } else if (client.aliases.has(commandName)) {
-        command = client.commands.get(client.aliases.get(commandName));
-      }
-      if (!command) return `The command \`${commandName}\` doesn"t seem to exist, nor is it an alias. Try again!`;
-    
-      if (command.shutdown) {
-        await command.shutdown(client);
-      }
-      const mod = require.cache[require.resolve(`../commands/${commandName}`)];
-      delete require.cache[require.resolve(`../commands/${commandName}.js`)];
-      for (let i = 0; i < mod.parent.children.length; i++) {
-        if (mod.parent.children[i] === mod) {
-          mod.parent.children.splice(i, 1);
-          break;
-        }
-      }
-      return false;
     };
   
     /* MISCELANEOUS NON-CRITICAL FUNCTIONS */

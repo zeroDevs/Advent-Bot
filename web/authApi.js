@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
 const { catchAsync } = require('./utils');
-const tokens = require('../tokens.json');
+const tokens = require('../configs/tokens.json');
 
 //mongoose setup
 mongoose.connect(`${tokens.mongo}`, { useNewUrlParser: true });
