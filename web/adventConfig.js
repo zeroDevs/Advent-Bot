@@ -11,7 +11,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 const db_name = "AOC";
 
 module.exports = (client) => {
-    console.log(client.settings.mongo)
     app.listen(port, function () {
         console.log('Advent - Webserver is running on port:', port);
     });
