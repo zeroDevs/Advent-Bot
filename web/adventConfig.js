@@ -24,7 +24,7 @@ module.exports = (client) => {
     app.get('/solutions', function (req, res) {
         console.log(req.query.day);
 
-        MongoClient.connect(client.settings.mongo, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(client.settings.tokens.mongoToken, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
             var dbo = db.db(db_name);
             dbo.collection("snippets").find({ dayNumber: req.query.day }).toArray(function (err, result) {
