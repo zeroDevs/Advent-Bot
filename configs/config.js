@@ -2,7 +2,7 @@ const config = {
 
   tokens: {
     botToken: require("./tokens.json").token,
-    mongoToken: require("./tokens.json").mlabs,
+    mongoToken: require("./tokens.json").mongo,
   },
   
   general: {
