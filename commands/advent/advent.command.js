@@ -3,7 +3,7 @@ const Discord = require("discord.js");
 exports.run = async (client, message, args) => {
   // eslint-disable-line no-unused-vars
 
-  const blank = client.emojis.get("587088664522391593");
+  const blank = client.emojis.get(client.settings.general.blankEmoji);
 
   client.sendEmbed(
     client,

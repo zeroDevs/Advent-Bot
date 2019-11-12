@@ -7,6 +7,7 @@ const config = {
   
   general: {
     prefix: "+",
+    blankEmoji: require("./tokens.json").BLANK_EMOJI
   },
 };
 
