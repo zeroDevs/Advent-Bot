@@ -1,65 +1,28 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const port = 8001;
-const MongoClient = require('mongodb').MongoClient;
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 
-const apiRoute = require('./authApi.js');
+const indexRoute = require("../routes/index.route");
+const apiRoute = require("./authApi.js");
+const solutionsRoute = require("../routes/solutions.route");
+const usersRoute = require("../routes/users.route");
+// const authRoute = require("../routes/auth.route") // Future implementation
+// const submitRoute = require("../routes/submit.route") // Future Implementation
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 
-const db_name = "AOC";
+module.exports = client => {
+  app.listen(port, function() {
+    console.log("Advent - Webserver is running on port:", port);
+  });
 
-module.exports = (client) => {
-    app.listen(port, function () {
-        console.log('Advent - Webserver is running on port:', port);
-    });
-
-    app.use('/api', apiRoute);
-
-    app.get('/data', function (req, res) {
-        res.sendFile(__dirname + "/advent/adventData.json");
-    })
-
-    app.get('/solutions', function (req, res) {
-        console.log(req.query.day);
-
-        MongoClient.connect(client.settings.tokens.mongoToken, { useNewUrlParser: true }, function (err, db) {
-            if (err) throw err;
-            var dbo = db.db(db_name);
-            dbo.collection("snippets").find({ dayNumber: req.query.day }).toArray(function (err, result) {
-                if (err) throw err;
-                res.json(result);
-                db.close();
-            });
-        });
-    });
-
-    app.get('/solutions/all', function (req, res) {
-
-        MongoClient.connect(client.settings.mongo, { useNewUrlParser: true }, function (err, db) {
-            if (err) throw err;
-            var dbo = db.db(db_name);
-            dbo.collection("snippets").find({}).toArray(function (err, result) {
-                if (err) throw err;
-                res.json(result);
-                db.close();
-            });
-        });
-    });
-
-    //route for student list
-    app.get('/user', (req, res) => {
-        MongoClient.connect(client.settings.mongo, { useNewUrlParser: true }, function (err, db) {
-            if (err) throw err;
-            var dbo = db.db(db_name);
-            dbo.collection("users").find({}).toArray(function (err, result) {
-                if (err) throw err;
-                res.json(result);
-                db.close();
-            });
-        });
-    });
-
-
-}
+  app.use("/", indexRoute);
+  app.use("/api", apiRoute);
+  app.use("/solutions", solutionsRoute);
+  app.use("/users", usersRoute);
+  // app.use("/auth", authRoute ) // Future Implementation
+  // app.user("/submit", submitRoute ) // Future Implementation
+};
