@@ -1,0 +1,78 @@
+<style>
+  body {
+    padding: 20px 50px;
+    background: rgb(15, 15, 15);
+    color: #fff;
+    font-family: "Courier New", Courier, monospace;
+  }
+
+  a {
+    color: rgb(255, 69, 0);
+    text-decoration: none;
+  }
+  a:hover {
+    color: rgb(240, 111, 64);
+  }
+
+  .header h1 {
+    text-align: center;
+    color: rgb(255, 69, 0);
+  }
+
+  .header p {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .endpoint {
+    margin-left: 5%;
+    padding: 1px 20px 10px;
+    margin-bottom: 50px;
+    border-left: 1px solid rgb(255, 69, 0);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .category h2 {
+    text-align: center;
+    font-size: xx-large;
+    margin-top: 50px;
+  }
+
+  .endpoint span {
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    background: rgb(255, 69, 0);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 5px 15px;
+    text-transform: uppercase;
+    font-weight: bolder;
+    margin-right: 10px;
+  }
+
+  hr {
+    width: 70vw;
+    border-color: rgba(255, 68, 0, 0.055);
+  }
+</style>
+
+<div class="header">
+  <h1>Advent Bot Documentation!</h1>
+  <p>
+    This will serve as basic endpoint documentation.
+  </p>
+  <hr />
+</div>
+
+<div class="category">
+  <h2>Endpoints</h2>
+  <% endpoints.forEach(function(end) { %>
+  <div class="endpoint">
+    <h4>
+      <a href="<%= ip %>/<%= end.endpoint %>"><%= ip %>/<%= end.endpoint %></a>
+    </h4>
+    <p><span class="rotate">get</span> <%= end.desc %></p>
+  </div>
+  <% }); %>
+</div>
