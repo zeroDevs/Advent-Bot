@@ -2,6 +2,8 @@ const router = require("express").Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const btoa = require("btoa");
+const fetch = require("node-fetch");
 
 const { catchAsync } = require("./utils");
 const tokens = require("../configs/tokens.json");
@@ -23,11 +25,11 @@ let solSchema = new mongoose.Schema({
 });
 
 let userSchema = new mongoose.Schema({
-    username: String, //format -> username#discrimanator
+    username: String, //username format -> username#discrimanator
     userid: Number,
+    point: Number,
     badgePoint: Number,
-    avatarUrl: String,
-    point: Number
+    avatarUrl: String
 });
 
 //snippet model
@@ -63,11 +65,20 @@ router.get(
                 }
             }
         );
-        const json = await response.json();
-        console.log(json);
+        const tokenJson = await userToken.json();
+        //user profile
+        const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${json.access_token}`,
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        });
+        const profileJson = await userProfile.json();
+        console.log(profileJson);
 
         jwt.sign(
-            { aToken: json.access_token },
+            { userProfile: profileJson },
             "y3l10whulk",
             { expiresIn: "2d" },
             (err, token) => {
@@ -80,15 +91,25 @@ router.get(
     })
 );
 
+// router.post("/profile", );
+
 router.post("/submit", (req, res) => {
-    console.log(req.body);
+    //user point vars
+    let point, badgePoint;
+
     const userData = req.body;
-    // res.status(200).json({error: null, isSuccessful: true});
+
+    //data required -> username(with discriminator), userid, url, date
 
     //check if user exist
     User.findOne({ username: userData.name }, (err, userFound) => {
         if (err) {
             console.log(error);
+        }
+        if (!userFound) {
+            point = 0;
+            badgePoint = 0;
+            User.create({ username, userid, point, badgePoint });
         }
         if (userFound) {
             //check if url already exist
