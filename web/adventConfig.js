@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = 8001;
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const indexRoute = require("../routes/index.route");
 const apiRoute = require("./authApi.js");
@@ -15,14 +16,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 module.exports = client => {
-  app.listen(port, function() {
-    console.log("Advent - Webserver is running on port:", port);
-  });
+    app.listen(port, function() {
+        console.log("Advent - Webserver is running on port:", port);
+    });
 
-  app.use("/", indexRoute);
-  app.use("/api", apiRoute);
-  app.use("/solutions", solutionsRoute);
-  app.use("/users", usersRoute);
-  // app.use("/auth", authRoute ) // Future Implementation
-  // app.user("/submit", submitRoute ) // Future Implementation
+    app.use("/", indexRoute);
+    app.use("/api", apiRoute);
+    app.use("/solutions", solutionsRoute);
+    app.use("/users", usersRoute);
+    // app.use("/auth", authRoute ) // Future Implementation
+    // app.user("/submit", submitRoute ) // Future Implementation
 };
