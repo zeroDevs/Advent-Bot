@@ -38,13 +38,11 @@ const Snippet = mongoose.model("Snippet", solSchema);
 let User = mongoose.model("User", userSchema);
 
 router.get("/login", (req, res) => {
-    const location = req.query.location;
+    const location = req.query.location ? req.query.location : "/";
+    const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
+    const scope = "&scope=identify%20guilds&response_type=code&redirect_uri=";
     res.redirect(
-        `https://discordapp.com/api/oauth2/authorize?client_id=${
-            tokens.CLIENT_ID
-        }&scope=identify%20guilds&response_type=code&redirect_uri=${
-            tokens.redirect
-        }?location=${location ? location : "/"}`
+        `${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}?location=${location}`
     );
 });
 
@@ -84,7 +82,7 @@ router.get(
             (err, token) => {
                 if (err) throw err;
                 res.redirect(
-                    `${tokens.redirect_front}/?token=${token}&location=${location}`
+                    `${tokens.redirect_front}${location}?token=${token}`
                 );
             }
         );
