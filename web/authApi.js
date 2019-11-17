@@ -29,7 +29,8 @@ let userSchema = new mongoose.Schema({
     userid: Number,
     point: Number,
     badgePoint: Number,
-    avatarUrl: String
+    avatarUrl: String,
+    langArray: []
 });
 
 //snippet model
@@ -100,6 +101,18 @@ router.post("/submit", (req, res) => {
 
     const userData = req.body;
 
+    //extract date from request
+    let submittedDate = parseInt(userData.date.split("-")[2]);
+
+    if (submittedDate > dateEST()) {
+        res.status(400).json({
+            error: "Invalid date",
+            isSuccessful: false,
+            data: {}
+        });
+        return;
+    }
+
     //data required -> username(with discriminator), id, url, date, langName
 
     //check if user exist
@@ -114,7 +127,8 @@ router.post("/submit", (req, res) => {
                 username: userData.username,
                 userid: userData.id,
                 point: localPoint,
-                badgePoint: localBadgePoint
+                badgePoint: localBadgePoint,
+                langArray: []
             });
         }
         //check if url already exist
@@ -130,33 +144,35 @@ router.post("/submit", (req, res) => {
                 return;
             } else {
                 Snippet.find(
-                    { dayNumber: userData.date, userid: userData.id },
+                    { dayNumber: submittedDate, userid: userData.id },
                     (err, sol) => {
                         if (err) console.error(err);
 
-                        if (sol.length > 0) {
-                            console.log(sol.length);
-                            for (let i = 0; i < sol.length; i++) {
-                                if (userData.langName === sol[i].langName) {
-                                    res.status(400).json({
-                                        error: `Solution for day ${userData.date} in ${userData.langName} is already submitted.`,
-                                        isSuccessful: false,
-                                        data: {}
-                                    });
-                                    return;
+                        if (sol) {
+                            if (sol.length > 0) {
+                                console.log(sol.length);
+                                for (let i = 0; i < sol.length; i++) {
+                                    if (userData.langName === sol[i].langName) {
+                                        res.status(400).json({
+                                            error: `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`,
+                                            isSuccessful: false,
+                                            data: {}
+                                        });
+                                        return;
+                                    }
                                 }
-                            }
 
-                            //user has already submitted solution for this day --> badgePoint++
-                            localBadgePoint = 1;
-                        } else {
-                            //user hasn't submitted this day's solution
-                            if (userData.date == dateEST()) {
-                                //today's solution --> point+2
-                                localPoint = 2;
-                            } else if (userData.date < dateEST()) {
-                                //previous day's solution
-                                localPoint = 1;
+                                //user has already submitted solution for this day --> badgePoint++
+                                localBadgePoint = 1;
+                            } else {
+                                //user hasn't submitted this day's solution
+                                if (submittedDate == dateEST()) {
+                                    //today's solution --> point+2
+                                    localPoint = 2;
+                                } else if (submittedDate < dateEST()) {
+                                    //previous day's solution
+                                    localPoint = 1;
+                                }
                             }
                         }
 
@@ -164,7 +180,7 @@ router.post("/submit", (req, res) => {
                         Snippet.create(
                             {
                                 url: userData.url,
-                                dayNumber: userData.date,
+                                dayNumber: submittedDate,
                                 userName: userData.userName,
                                 userid: userData.id,
                                 langName: userData.langName,
@@ -190,6 +206,33 @@ router.post("/submit", (req, res) => {
                                 return res.send("succesfully saved");
                             }
                         );
+
+                        //add language used to array in user model
+                        User.findOne(
+                            { userid: userData.id },
+                            (err, user) => {
+                                if(err) console.error(err);
+                                if(user) {
+                                    console.log(user);
+                                    if(user.langArray.includes(userData.langName.toLowerCase())) {
+                                        console.log(userData.langName.toLowerCase());
+                                        return;
+                                    } else {
+                                        user.langArray.push(userData.langName.toLowerCase());
+                                        console.log(user.langArray);
+                                        User.findOneAndUpdate(
+                                            { userid: userData.id },
+                                            {langArray: user.langArray},
+                                            { upsert: true },
+                                            (err, done) => {
+                                                if (err) return res.send(500, { error: err });
+                                                return;
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        );
                     }
                 );
             }
@@ -198,14 +241,14 @@ router.post("/submit", (req, res) => {
 });
 
 const timeEST = () => {
-    //  time convertion to EST
+    //time convertion to EST
     var dt = new Date();
     var offset = -300; //Timezone offset for EST in minutes.
     return new Date(dt.getTime() + offset * 60 * 1000);
 };
 
 const dateEST = () => {
-    //  date convertion to EST
+    //date convertion to EST
     var dt = new Date();
     var offset = -300; //Timezone offset for EST in minutes.
     let d = new Date(dt.getTime() + offset * 60 * 1000);
