@@ -134,7 +134,7 @@ router.post("/submit", (req, res) => {
                     (err, sol) => {
                         if (err) console.error(err);
 
-                        if (sol) {
+                        if (sol.length > 0) {
                             console.log(sol.length);
                             for (let i = 0; i < sol.length; i++) {
                                 if (userData.langName === sol[i].langName) {
