@@ -54,7 +54,7 @@ router.get(
         const code = req.query.code;
         const creds = btoa(`${tokens.CLIENT_ID}:${tokens.CLIENT_SECRET}`);
         const userToken = await fetch(
-            `https://discordapp.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}`,
+            `https://discordapp.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}?location=${location}`,
             {
                 method: "POST",
                 headers: {
