@@ -68,7 +68,7 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${userToken.access_token}`,
+                Authorization: `Bearer ${tokenJson.access_token}`,
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         });
