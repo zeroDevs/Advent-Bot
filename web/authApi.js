@@ -41,9 +41,7 @@ router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
     const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
     const scope = "&scope=identify%20guilds&response_type=code&redirect_uri=";
-    res.redirect(
-        `${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}?location=${location}`
-    );
+    res.redirect(`${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}`);
 });
 
 router.get(
@@ -82,7 +80,7 @@ router.get(
             (err, token) => {
                 if (err) throw err;
                 res.redirect(
-                    `${tokens.redirect_front}${location}?token=${token}`
+                    `${tokens.redirect_front}/solutions/?token=${token}`
                 );
             }
         );
