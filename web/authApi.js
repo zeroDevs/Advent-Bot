@@ -19,7 +19,7 @@ let solSchema = new mongoose.Schema({
     dayNumber: Number,
     userName: String,
     userid: Number,
-    language: String,
+    langName: String,
     avatarUrl: String,
     Time: { type: Date, default: Date.now }
 });
@@ -66,16 +66,18 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${json.access_token}`,
+                Authorization: `Bearer ${token.access_token}`,
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         });
         const profileJson = await userProfile.json();
         console.log(profileJson);
 
+        //TODO: hash discord token with bcrypt
+
         jwt.sign(
             { userProfile: profileJson },
-            "y3l10whulk",
+            tokens.jwtToken,
             { expiresIn: "2d" },
             (err, token) => {
                 if (err) throw err;
@@ -91,41 +93,123 @@ router.get(
 
 router.post("/submit", (req, res) => {
     //user point vars
-    let point, badgePoint;
+    let localPoint = 0,
+        localBadgePoint = 0;
 
     const userData = req.body;
 
-    //data required -> username(with discriminator), userid, url, date
+    //data required -> username(with discriminator), id, url, date, langName
 
     //check if user exist
-    User.findOne({ username: userData.name }, (err, userFound) => {
+    User.findOne({ userid: userData.id }, (err, userFound) => {
         if (err) {
             console.log(error);
         }
         if (!userFound) {
-            point = 0;
-            badgePoint = 0;
-            User.create({ username, userid, point, badgePoint });
-        }
-        if (userFound) {
-            //check if url already exist
-            Snippet.findOne({ url: userData.url }, (err, urlExist) => {
-                if (err) console.log(err);
-
-                console.log(urlExist);
-                if (urlExist) {
-                    res.status(400).json({
-                        error: "URL already exist",
-                        isSuccessful: false,
-                        data: {}
-                    });
-                } else {
-                    //add more stuff
-                }
+            localPoint = 0;
+            localBadgePoint = 0;
+            User.create({
+                username: userData.username,
+                userid: userData.id,
+                point: localPoint,
+                badgePoint: localBadgePoint
             });
         }
+        //check if url already exist
+        Snippet.findOne({ url: userData.url }, (err, urlExist) => {
+            if (err) console.error(err);
+
+            if (urlExist) {
+                res.status(400).json({
+                    error: "URL already exist",
+                    isSuccessful: false,
+                    data: {}
+                });
+                return;
+            } else {
+                Snippet.find(
+                    { dayNumber: userData.date, userid: userData.id },
+                    (err, sol) => {
+                        if (err) console.error(err);
+
+                        if (sol.length > 0) {
+                            console.log(sol.length);
+                            for (let i = 0; i < sol.length; i++) {
+                                if (userData.langName === sol[i].langName) {
+                                    res.status(400).json({
+                                        error: `Solution for day ${userData.date} in ${userData.langName} is already submitted.`,
+                                        isSuccessful: false,
+                                        data: {}
+                                    });
+                                    return;
+                                }
+                            }
+
+                            //user has already submitted solution for this day --> badgePoint++
+                            localBadgePoint = 1;
+                        } else {
+                            //user hasn't submitted this day's solution
+                            if (userData.date == dateEST()) {
+                                //today's solution --> point+2
+                                localPoint = 2;
+                            } else if (userData.date < dateEST()) {
+                                //previous day's solution
+                                localPoint = 1;
+                            }
+                        }
+
+                        //add solution to db
+                        Snippet.create(
+                            {
+                                url: userData.url,
+                                dayNumber: userData.date,
+                                userName: userData.userName,
+                                userid: userData.id,
+                                langName: userData.langName,
+                                Time: timeEST()
+                            },
+                            (err, done) => {
+                                if (err) console.error(err);
+                            }
+                        );
+
+                        //update user points
+                        User.findOneAndUpdate(
+                            { userid: userData.id },
+                            {
+                                $inc: {
+                                    point: localPoint,
+                                    badgePoint: localBadgePoint
+                                }
+                            },
+                            { upsert: true },
+                            (err, doc) => {
+                                if (err) return res.send(500, { error: err });
+                                return res.send("succesfully saved");
+                            }
+                        );
+                    }
+                );
+            }
+        });
     });
 });
+
+const timeEST = () => {
+    //  time convertion to EST
+    var dt = new Date();
+    var offset = -300; //Timezone offset for EST in minutes.
+    return new Date(dt.getTime() + offset * 60 * 1000);
+};
+
+const dateEST = () => {
+    //  date convertion to EST
+    var dt = new Date();
+    var offset = -300; //Timezone offset for EST in minutes.
+    let d = new Date(dt.getTime() + offset * 60 * 1000);
+    console.log("DATE __ ", d.getDate());
+    return d.getDate();
+};
 
 function verifyToken(req, res, next) {
     const bearerHeader = req.headers["authorization"];
