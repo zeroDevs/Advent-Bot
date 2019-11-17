@@ -53,7 +53,7 @@ router.get(
         if (!req.query.code) throw new Error("NoCodeProvided");
         const code = req.query.code;
         const creds = btoa(`${tokens.CLIENT_ID}:${tokens.CLIENT_SECRET}`);
-        const response = await fetch(
+        const userToken = await fetch(
             `https://discordapp.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}`,
             {
                 method: "POST",
@@ -68,7 +68,7 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${token.access_token}`,
+                Authorization: `Bearer ${userToken.access_token}`,
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         });
