@@ -224,12 +224,7 @@ router.post("/submit", verifyToken, (req, res) => {
                             },
                             { upsert: true },
                             (err, doc) => {
-                                if (err)
-                                    return res.send(500, {
-                                        error: err,
-                                        isSuccessful: false,
-                                        data: {}
-                                    });
+                                if (err) console.error(err);
                                 return res.status(200).json({
                                     error: null,
                                     isSuccessful: true,
@@ -262,12 +257,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                         { langArray: user.langArray },
                                         { upsert: true },
                                         (err, done) => {
-                                            if (err)
-                                                return res.send(500, {
-                                                    error: err,
-                                                    isSuccessful: false,
-                                                    data: {}
-                                                });
+                                            if (err) console.error(err);
                                             return;
                                         }
                                     );
