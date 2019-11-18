@@ -81,7 +81,7 @@ router.get(
         jwt.sign(
             { userProfile: profileJson },
             tokens.jwtToken,
-            { expiresIn: "2d" },
+            { expiresIn: "7d" },
             (err, token) => {
                 if (err) throw err;
                 res.redirect(
@@ -94,12 +94,34 @@ router.get(
 
 // router.post("/profile", );
 
-router.post("/submit", (req, res) => {
+router.post("/submit", verifyToken, (req, res) => {
     //user point vars
     let localPoint = 0,
-        localBadgePoint = 0;
+        localBadgePoint = 0,
+        isTokenValid = false;
 
     const userData = req.body;
+
+    //verify token
+    jwt.verify(req.token, tokens.jwtToken, (err, dec) => {
+        if (err)
+            console.error(
+                "=========================\n",
+                err,
+                "\n========================="
+            );
+        return dec == undefined
+            ? (isTokenValid = false)
+            : (isTokenValid = true);
+    });
+
+    if (!isTokenValid) {
+        return res.status(400).json({
+            error: "Invalid Token",
+            isSuccessful: false,
+            data: {}
+        });
+    }
 
     //extract date from request
     let submittedDate = parseInt(userData.date.split("-")[2]);
@@ -113,7 +135,7 @@ router.post("/submit", (req, res) => {
         return;
     }
 
-    //data required -> username(with discriminator), id, url, date, langName
+    //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
     //check if user exist
     User.findOne({ userid: userData.id }, (err, userFound) => {
@@ -202,37 +224,56 @@ router.post("/submit", (req, res) => {
                             },
                             { upsert: true },
                             (err, doc) => {
-                                if (err) return res.send(500, { error: err });
-                                return res.send("succesfully saved");
+                                if (err)
+                                    return res.send(500, {
+                                        error: err,
+                                        isSuccessful: false,
+                                        data: {}
+                                    });
+                                return res.status(200).json({
+                                    error: null,
+                                    isSuccessful: true,
+                                    data: {}
+                                });
                             }
                         );
 
                         //add language used to array in user model
-                        User.findOne(
-                            { userid: userData.id },
-                            (err, user) => {
-                                if(err) console.error(err);
-                                if(user) {
-                                    console.log(user);
-                                    if(user.langArray.includes(userData.langName.toLowerCase())) {
-                                        console.log(userData.langName.toLowerCase());
-                                        return;
-                                    } else {
-                                        user.langArray.push(userData.langName.toLowerCase());
-                                        console.log(user.langArray);
-                                        User.findOneAndUpdate(
-                                            { userid: userData.id },
-                                            {langArray: user.langArray},
-                                            { upsert: true },
-                                            (err, done) => {
-                                                if (err) return res.send(500, { error: err });
-                                                return;
-                                            }
-                                        )
-                                    }
+                        User.findOne({ userid: userData.id }, (err, user) => {
+                            if (err) console.error(err);
+                            if (user) {
+                                console.log(user);
+                                if (
+                                    user.langArray.includes(
+                                        userData.langName.toLowerCase()
+                                    )
+                                ) {
+                                    console.log(
+                                        userData.langName.toLowerCase()
+                                    );
+                                    return;
+                                } else {
+                                    user.langArray.push(
+                                        userData.langName.toLowerCase()
+                                    );
+                                    console.log(user.langArray);
+                                    User.findOneAndUpdate(
+                                        { userid: userData.id },
+                                        { langArray: user.langArray },
+                                        { upsert: true },
+                                        (err, done) => {
+                                            if (err)
+                                                return res.send(500, {
+                                                    error: err,
+                                                    isSuccessful: false,
+                                                    data: {}
+                                                });
+                                            return;
+                                        }
+                                    );
                                 }
                             }
-                        );
+                        });
                     }
                 );
             }
@@ -264,7 +305,11 @@ function verifyToken(req, res, next) {
         req.token = bearerToken;
         next();
     } else {
-        res.status(403).json({ error: "token error", isSuccessful: false });
+        res.status(403).json({
+            error: "Invalid token",
+            isSuccessful: false,
+            data: {}
+        });
     }
 }
 
