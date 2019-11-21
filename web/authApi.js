@@ -85,7 +85,7 @@ router.get(
             (err, token) => {
                 if (err) throw err;
                 res.redirect(
-                    `${tokens.redirect_front}/solutions/?token=${token}`
+                    `${tokens.redirect_front}${location}/?token=${token}`
                 );
             }
         );
