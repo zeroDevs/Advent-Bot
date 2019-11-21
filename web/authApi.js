@@ -205,6 +205,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 dayNumber: submittedDate,
                                 userName: userData.userName,
                                 userid: userData.id,
+                                avatarUrl: user.avatarUrl,
                                 langName: userData.langName,
                                 Time: timeEST()
                             },
