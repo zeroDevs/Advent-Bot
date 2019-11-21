@@ -29,7 +29,8 @@ let userSchema = new mongoose.Schema({
     userid: Number,
     point: Number,
     badgePoint: Number,
-    avatarUrl: String
+    avatarUrl: String,
+    langArray: []
 });
 
 //snippet model
@@ -51,8 +52,8 @@ router.get(
         if (!req.query.code) throw new Error("NoCodeProvided");
         const code = req.query.code;
         const creds = btoa(`${tokens.CLIENT_ID}:${tokens.CLIENT_SECRET}`);
-        const response = await fetch(
-            `https://discordapp.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}`,
+        const userToken = await fetch(
+            `https://discordapp.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}?location=${location}`,
             {
                 method: "POST",
                 headers: {
@@ -66,7 +67,7 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${token.access_token}`,
+                Authorization: `Bearer ${tokenJson.access_token}`,
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         });
@@ -78,7 +79,7 @@ router.get(
         jwt.sign(
             { userProfile: profileJson },
             tokens.jwtToken,
-            { expiresIn: "2d" },
+            { expiresIn: "7d" },
             (err, token) => {
                 if (err) throw err;
                 res.redirect(
@@ -91,14 +92,48 @@ router.get(
 
 // router.post("/profile", );
 
-router.post("/submit", (req, res) => {
+router.post("/submit", verifyToken, (req, res) => {
     //user point vars
     let localPoint = 0,
-        localBadgePoint = 0;
+        localBadgePoint = 0,
+        isTokenValid = false;
 
     const userData = req.body;
 
-    //data required -> username(with discriminator), id, url, date, langName
+    //verify token
+    jwt.verify(req.token, tokens.jwtToken, (err, dec) => {
+        if (err)
+            console.error(
+                "=========================\n",
+                err,
+                "\n========================="
+            );
+        return dec == undefined
+            ? (isTokenValid = false)
+            : (isTokenValid = true);
+    });
+
+    if (!isTokenValid) {
+        return res.status(400).json({
+            error: "Invalid Token",
+            isSuccessful: false,
+            data: {}
+        });
+    }
+
+    //extract date from request
+    let submittedDate = parseInt(userData.date.split("-")[2]);
+
+    if (submittedDate > dateEST()) {
+        res.status(400).json({
+            error: "Invalid date",
+            isSuccessful: false,
+            data: {}
+        });
+        return;
+    }
+
+    //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
     //check if user exist
     User.findOne({ userid: userData.id }, (err, userFound) => {
@@ -112,7 +147,8 @@ router.post("/submit", (req, res) => {
                 username: userData.username,
                 userid: userData.id,
                 point: localPoint,
-                badgePoint: localBadgePoint
+                badgePoint: localBadgePoint,
+                langArray: []
             });
         }
         //check if url already exist
@@ -128,33 +164,35 @@ router.post("/submit", (req, res) => {
                 return;
             } else {
                 Snippet.find(
-                    { dayNumber: userData.date, userid: userData.id },
+                    { dayNumber: submittedDate, userid: userData.id },
                     (err, sol) => {
                         if (err) console.error(err);
 
-                        if (sol.length > 0) {
-                            console.log(sol.length);
-                            for (let i = 0; i < sol.length; i++) {
-                                if (userData.langName === sol[i].langName) {
-                                    res.status(400).json({
-                                        error: `Solution for day ${userData.date} in ${userData.langName} is already submitted.`,
-                                        isSuccessful: false,
-                                        data: {}
-                                    });
-                                    return;
+                        if (sol) {
+                            if (sol.length > 0) {
+                                console.log(sol.length);
+                                for (let i = 0; i < sol.length; i++) {
+                                    if (userData.langName === sol[i].langName) {
+                                        res.status(400).json({
+                                            error: `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`,
+                                            isSuccessful: false,
+                                            data: {}
+                                        });
+                                        return;
+                                    }
                                 }
-                            }
 
-                            //user has already submitted solution for this day --> badgePoint++
-                            localBadgePoint = 1;
-                        } else {
-                            //user hasn't submitted this day's solution
-                            if (userData.date == dateEST()) {
-                                //today's solution --> point+2
-                                localPoint = 2;
-                            } else if (userData.date < dateEST()) {
-                                //previous day's solution
-                                localPoint = 1;
+                                //user has already submitted solution for this day --> badgePoint++
+                                localBadgePoint = 1;
+                            } else {
+                                //user hasn't submitted this day's solution
+                                if (submittedDate == dateEST()) {
+                                    //today's solution --> point+2
+                                    localPoint = 2;
+                                } else if (submittedDate < dateEST()) {
+                                    //previous day's solution
+                                    localPoint = 1;
+                                }
                             }
                         }
 
@@ -162,7 +200,7 @@ router.post("/submit", (req, res) => {
                         Snippet.create(
                             {
                                 url: userData.url,
-                                dayNumber: userData.date,
+                                dayNumber: submittedDate,
                                 userName: userData.userName,
                                 userid: userData.id,
                                 langName: userData.langName,
@@ -184,10 +222,46 @@ router.post("/submit", (req, res) => {
                             },
                             { upsert: true },
                             (err, doc) => {
-                                if (err) return res.send(500, { error: err });
-                                return res.send("succesfully saved");
+                                if (err) console.error(err);
+                                return res.status(200).json({
+                                    error: null,
+                                    isSuccessful: true,
+                                    data: {}
+                                });
                             }
                         );
+
+                        //add language used to array in user model
+                        User.findOne({ userid: userData.id }, (err, user) => {
+                            if (err) console.error(err);
+                            if (user) {
+                                console.log(user);
+                                if (
+                                    user.langArray.includes(
+                                        userData.langName.toLowerCase()
+                                    )
+                                ) {
+                                    console.log(
+                                        userData.langName.toLowerCase()
+                                    );
+                                    return;
+                                } else {
+                                    user.langArray.push(
+                                        userData.langName.toLowerCase()
+                                    );
+                                    console.log(user.langArray);
+                                    User.findOneAndUpdate(
+                                        { userid: userData.id },
+                                        { langArray: user.langArray },
+                                        { upsert: true },
+                                        (err, done) => {
+                                            if (err) console.error(err);
+                                            return;
+                                        }
+                                    );
+                                }
+                            }
+                        });
                     }
                 );
             }
@@ -196,14 +270,14 @@ router.post("/submit", (req, res) => {
 });
 
 const timeEST = () => {
-    //  time convertion to EST
+    //time convertion to EST
     var dt = new Date();
     var offset = -300; //Timezone offset for EST in minutes.
     return new Date(dt.getTime() + offset * 60 * 1000);
 };
 
 const dateEST = () => {
-    //  date convertion to EST
+    //date convertion to EST
     var dt = new Date();
     var offset = -300; //Timezone offset for EST in minutes.
     let d = new Date(dt.getTime() + offset * 60 * 1000);
@@ -219,7 +293,11 @@ function verifyToken(req, res, next) {
         req.token = bearerToken;
         next();
     } else {
-        res.status(403).json({ error: "token error", isSuccessful: false });
+        res.status(403).json({
+            error: "Invalid token",
+            isSuccessful: false,
+            data: {}
+        });
     }
 }
 
