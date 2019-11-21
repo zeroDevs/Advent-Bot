@@ -14,13 +14,13 @@ const usersRoute = require("../routes/users.route");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-app.use(cors());
 
 module.exports = client => {
     app.listen(port, function() {
         console.log("Advent - Webserver is running on port:", port);
     });
 
+    app.use(cors());
     app.use("/", indexRoute);
     app.use("/api", apiRoute);
     app.use("/solutions", solutionsRoute);

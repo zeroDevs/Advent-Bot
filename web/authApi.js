@@ -4,15 +4,9 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const btoa = require("btoa");
 const fetch = require("node-fetch");
-const cors = require("cors");
 
 const { catchAsync } = require("./utils");
 const tokens = require("../configs/tokens.json");
-
-const corsOptions = {
-    origin: "https://aoc.zerotomastery.io",
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
 
 //mongoose setup
 mongoose.connect(`${tokens.mongo}`, {
@@ -48,7 +42,9 @@ router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
     const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
     const scope = "&scope=identify%20guilds&response_type=code&redirect_uri=";
-    res.redirect(`${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}`);
+    res.redirect(
+        `${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}?location=${location}`
+    );
 });
 
 router.get(
@@ -98,7 +94,7 @@ router.get(
 
 // router.post("/profile", );
 
-router.post("/submit", verifyToken, cors(corsOptions), (req, res) => {
+router.post("/submit", verifyToken, (req, res) => {
     //user point vars
     let localPoint = 0,
         localBadgePoint = 0,
