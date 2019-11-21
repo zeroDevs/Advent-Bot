@@ -116,6 +116,7 @@ router.post("/submit", verifyToken, (req, res) => {
     });
 
     if (!isTokenValid) {
+        console.log("INVALID TOKEN");
         return res.status(400).json({
             error: "Invalid Token",
             isSuccessful: false,
@@ -127,6 +128,7 @@ router.post("/submit", verifyToken, (req, res) => {
     let submittedDate = parseInt(userData.date.split("-")[2]);
 
     if (submittedDate > dateEST()) {
+        console.log("INVALID DATE");
         res.status(400).json({
             error: "Invalid date",
             isSuccessful: false,
@@ -205,7 +207,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 dayNumber: submittedDate,
                                 userName: userData.userName,
                                 userid: userData.id,
-                                avatarUrl: user.avatarUrl,
+                                avatarUrl: userData.avatarUrl,
                                 langName: userData.langName,
                                 Time: timeEST()
                             },
