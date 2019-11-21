@@ -101,6 +101,7 @@ router.post("/submit", verifyToken, (req, res) => {
         isTokenValid = false;
 
     const userData = req.body;
+    console.log("UD:", userData);
 
     //verify token
     jwt.verify(req.token, tokens.jwtToken, (err, dec) => {
@@ -148,8 +149,9 @@ router.post("/submit", verifyToken, (req, res) => {
             localPoint = 0;
             localBadgePoint = 0;
             User.create({
-                username: userData.username,
+                username: userData.userName,
                 userid: userData.id,
+                avatarUrl: userData.userAvatar,
                 point: localPoint,
                 badgePoint: localBadgePoint,
                 langArray: []
