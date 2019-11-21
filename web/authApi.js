@@ -263,8 +263,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                     User.findOneAndUpdate(
                                         { userid: userData.id },
                                         {
-                                            langArray:
-                                                user[submittedDate].langArray
+                                            langArray: user.langArray
                                         },
                                         { upsert: true },
                                         (err, done) => {
