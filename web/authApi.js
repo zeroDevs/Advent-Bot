@@ -8,6 +8,11 @@ const fetch = require("node-fetch");
 const { catchAsync } = require("./utils");
 const tokens = require("../configs/tokens.json");
 
+const corsOptions = {
+    origin: "https://aoc.zerotomastery.io",
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
 //mongoose setup
 mongoose.connect(`${tokens.mongo}`, {
     useNewUrlParser: true,
@@ -92,7 +97,7 @@ router.get(
 
 // router.post("/profile", );
 
-router.post("/submit", verifyToken, (req, res) => {
+router.post("/submit", verifyToken, cors(corsOptions), (req, res) => {
     //user point vars
     let localPoint = 0,
         localBadgePoint = 0,
