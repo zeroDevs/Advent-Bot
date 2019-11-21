@@ -14,6 +14,7 @@ const usersRoute = require("../routes/users.route");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.use(cors());
 
 module.exports = client => {
     app.listen(port, function() {
