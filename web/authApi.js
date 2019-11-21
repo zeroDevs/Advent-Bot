@@ -143,7 +143,7 @@ router.post("/submit", verifyToken, (req, res) => {
     //check if user exist
     User.findOne({ userid: userData.id }, (err, userFound) => {
         if (err) {
-            console.log(error);
+            console.error("FIND USER ERROR:", error);
         }
         if (!userFound) {
             localPoint = 0;
@@ -179,6 +179,9 @@ router.post("/submit", verifyToken, (req, res) => {
                                 console.log(sol.length);
                                 for (let i = 0; i < sol.length; i++) {
                                     if (userData.langName === sol[i].langName) {
+                                        console.error(
+                                            `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`
+                                        );
                                         res.status(400).json({
                                             error: `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`,
                                             isSuccessful: false,
@@ -242,7 +245,7 @@ router.post("/submit", verifyToken, (req, res) => {
                         User.findOne({ userid: userData.id }, (err, user) => {
                             if (err) console.error(err);
                             if (user) {
-                                console.log(user);
+                                console.log("FINDONE USER:", user);
                                 if (
                                     user.langArray.includes(
                                         userData.langName.toLowerCase()
@@ -259,7 +262,10 @@ router.post("/submit", verifyToken, (req, res) => {
                                     console.log(user.langArray);
                                     User.findOneAndUpdate(
                                         { userid: userData.id },
-                                        { langArray: user.langArray },
+                                        {
+                                            langArray:
+                                                user[submittedDate].langArray
+                                        },
                                         { upsert: true },
                                         (err, done) => {
                                             if (err) console.error(err);
@@ -288,7 +294,6 @@ const dateEST = () => {
     var dt = new Date();
     var offset = -300; //Timezone offset for EST in minutes.
     let d = new Date(dt.getTime() + offset * 60 * 1000);
-    console.log("DATE __ ", d.getDate());
     return d.getDate();
 };
 
