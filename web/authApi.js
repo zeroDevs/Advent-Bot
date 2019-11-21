@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const btoa = require("btoa");
 const fetch = require("node-fetch");
+const cors = require("cors");
 
 const { catchAsync } = require("./utils");
 const tokens = require("../configs/tokens.json");
