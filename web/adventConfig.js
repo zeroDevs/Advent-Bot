@@ -8,8 +8,8 @@ const indexRoute = require("../routes/index.route");
 const apiRoute = require("./authApi.js");
 const solutionsRoute = require("../routes/solutions.route");
 const usersRoute = require("../routes/users.route");
+const statsRoute = require("../routes/stats.route");
 // const authRoute = require("../routes/auth.route") // Future implementation
-// const submitRoute = require("../routes/submit.route") // Future Implementation
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,6 +25,6 @@ module.exports = client => {
     app.use("/api", apiRoute);
     app.use("/solutions", solutionsRoute);
     app.use("/users", usersRoute);
+    app.use("/stats", statsRoute);
     // app.use("/auth", authRoute ) // Future Implementation
-    // app.user("/submit", submitRoute ) // Future Implementation
 };
