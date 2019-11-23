@@ -3,6 +3,7 @@ const app = express();
 const port = 8001;
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 
 const indexRoute = require("./routes/index.route");
 const apiRoute = require("./routes/authApi.route");
@@ -14,6 +15,7 @@ const statsRoute = require("./routes/stats.route");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 module.exports = client => {
     app.use(cors());

@@ -1,6 +1,7 @@
 const route = require("express").Router();
-const MongoClient = require("mongodb").MongoClient;
-const tokens = require("../../configs/tokens.json");
+
+const SolutionsService = require("../services/Solutions.service");
+const RatingsService = require("../services/Ratings.service");
 
 /**
  * This is the solutions routes. Here we can can request solutions from the database
@@ -8,25 +9,53 @@ const tokens = require("../../configs/tokens.json");
  * Providing no query param will result in all solutions
  **/
 
-route.get("/", (req, res) => {
-    const day = req.query.day;
-    let find = {};
+route.get("/", async (req, res) => {
+    const { day } = req.query;
 
-    MongoClient.connect(tokens.mongo, { useNewUrlParser: true }, function(
-        err,
-        db
-    ) {
-        if (day) find.dayNumber = Number(day);
-        if (err) throw err;
-        let dbo = db.db("AOC");
-        dbo.collection("snippets")
-            .find(find)
-            .toArray(function(err, result) {
-                if (err) throw err;
-                res.json(result);
-                db.close();
-            });
-    });
+    const solutions = day
+        ? await SolutionsService.getSolutionsForDay(day)
+        : await SolutionsService.getAllSolutions();
+
+    const ratings = await RatingsService.getAllRatings();
+
+    let data;
+    try {
+        solutions = JSON.parse(solutions);
+        ratings = JSON.parse(ratings);
+
+        data = solutions.forEach(solution => {
+            solution.ratings = ratings.filter(rating => rating.solutionId === solution._id);
+            solution.averageRating = RatingsService.calculateAverage(solution.ratings);
+        });
+    } catch (error) {}
+
+    if (data) return res.status(200).json(data);
+
+    return res.sendStatus(500);
+});
+
+/***
+ * @description Creates a new rating for the solution
+ *
+ * @body {
+ *      ratingScore: Number;
+ *      solutionId: MongoDb ObjectId;
+ *      userId: MongoDb ObjectId
+ * }
+ */
+
+// add middleware so only logged in users can vote
+route.post("/vote", async (req, res) => {
+    const { ...rating } = req.body;
+
+    if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId)) {
+        return sendStatus(400);
+    }
+
+    if (await RatingsService.createNewRating({ ...rating })) {
+        return res.sendStatus(201);
+    }
+    return res.sendStatus(400);
 });
 
 module.exports = route;

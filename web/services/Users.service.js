@@ -2,7 +2,8 @@ const User = require("../models/User.model");
 
 class UsersService {
     constructor(logger) {
-        this.logger = logger; // not in use yet, implement
+        // this.logger = logger; // switch to use real logger
+        this.logger = console;
     }
 
     async userExists(username) {
@@ -10,7 +11,7 @@ class UsersService {
             const user = User.findOne({ username }).exec();
             return Boolean(user);
         } catch (error) {
-            // this.logger.error(`*userExists*: ${error}`);
+            this.logger.error(`*userExists*: ${error}`);
         }
     }
 
@@ -20,7 +21,7 @@ class UsersService {
             newUser.save();
             return true;
         } catch (error) {
-            // this.logger.error(`*createUser*: ${error}`);
+            this.logger.error(`*createUser*: ${error}`);
         }
     }
 
@@ -29,7 +30,7 @@ class UsersService {
             await User.findOneAndUpdate({ userid }, { ...updatedUser }).exec();
             return true;
         } catch (error) {
-            // this.logger.error(`*updateUser*: ${error}`);
+            this.logger.error(`*updateUser*: ${error}`);
         }
     }
 
@@ -38,9 +39,9 @@ class UsersService {
             await User.findOneAndDelete({ userid }).exec();
             return true;
         } catch (error) {
-            // this.logger.error(`*deleteUser*: ${error}`);
+            this.logger.error(`*deleteUser*: ${error}`);
         }
     }
 }
 
-module.exports = UsersService;
+module.exports = new UsersService();

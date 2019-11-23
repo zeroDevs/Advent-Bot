@@ -2,7 +2,8 @@ const Solution = require("../models/Solution.model");
 
 class SolutionsService {
     constructor(logger) {
-        this.logger = logger; // not in use yet, implement
+        // this.logger = logger; // switch to use real logger
+        this.logger = console;
     }
 
     async urlInUse(url) {
@@ -10,16 +11,34 @@ class SolutionsService {
             const solution = await Solution.findOne({ url }).exec();
             return Boolean(solution);
         } catch (error) {
-            // this.logger.error(`*urlInUse*: ${error}`);
+            this.logger.error(`*urlInUse*: ${error}`);
         }
     }
 
-    async langsUsedForDay(userid, day) {
+    async getAllSolutions() {
         try {
-            const data = await Solution.find({ userid, dayNumber: day }).exec();
+            const data = await Solution.find().exec();
+            return data;
+        } catch (error) {
+            this.logger.error(`*getAllSolutions*: ${error}`);
+        }
+    }
+
+    async getSolutionsForDay(dayNumber) {
+        try {
+            const data = await Solution.find({ dayNumber }).exec();
+            return data;
+        } catch (error) {
+            this.logger.error(`*getSolutionsForDay*: ${error}`);
+        }
+    }
+
+    async langsUsedForDay(userid, dayNumber) {
+        try {
+            const data = await Solution.find({ userid, dayNumber }).exec();
             return (data && data.map(solution => solution.langName)) || [];
         } catch (error) {
-            // this.logger.error(`*langsUsedForDay*: ${error}`);
+            this.logger.error(`*langsUsedForDay*: ${error}`);
             return [];
         }
     }
@@ -30,7 +49,7 @@ class SolutionsService {
             newSolution.save();
             return true;
         } catch (error) {
-            // this.logger.error(`*createSolution*: ${error}`);
+            this.logger.error(`*createSolution*: ${error}`);
         }
     }
 
@@ -39,9 +58,9 @@ class SolutionsService {
             await Solution.findByIdAndDelete(solutionId).exec();
             return true;
         } catch (error) {
-            // this.logger.error(`*deleteSolution*: ${error}`);
+            this.logger.error(`*deleteSolution*: ${error}`);
         }
     }
 }
 
-module.exports = SolutionsService;
+module.exports = new SolutionsService();
