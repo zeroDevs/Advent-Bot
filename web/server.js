@@ -4,11 +4,11 @@ const port = 8001;
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const indexRoute = require("../routes/index.route");
-const apiRoute = require("./authApi.js");
-const solutionsRoute = require("../routes/solutions.route");
-const usersRoute = require("../routes/users.route");
-const statsRoute = require("../routes/stats.route");
+const indexRoute = require("./routes/index.route");
+const apiRoute = require("./routes/authApi.route");
+const solutionsRoute = require("./routes/solutions.route");
+const usersRoute = require("./routes/users.route");
+const statsRoute = require("./routes/stats.route");
 // const authRoute = require("../routes/auth.route") // Future implementation
 
 app.use(bodyParser.json());

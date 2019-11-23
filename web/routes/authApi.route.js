@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const btoa = require("btoa");
 const fetch = require("node-fetch");
 
-const { catchAsync } = require("./utils");
-const tokens = require("../configs/tokens.json");
+const { catchAsync } = require("../utils");
+const tokens = require("../../configs/tokens.json");
 
 //mongoose setup
 // mongoose.connect(`${tokens.mongo}`, {
