@@ -16,10 +16,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 module.exports = client => {
-    app.listen(port, function() {
-        console.log("Advent - Webserver is running on port:", port);
-    });
-
     app.use(cors());
     app.use("/", indexRoute);
     app.use("/api", apiRoute);
@@ -27,4 +23,8 @@ module.exports = client => {
     app.use("/users", usersRoute);
     app.use("/stats", statsRoute);
     // app.use("/auth", authRoute ) // Future Implementation
+
+    app.listen(port, function() {
+        console.log("Advent - Webserver is running on port:", port);
+    });
 };

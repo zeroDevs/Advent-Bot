@@ -8,36 +8,6 @@ const fetch = require("node-fetch");
 const { catchAsync } = require("../utils");
 const tokens = require("../../configs/tokens.json");
 
-//mongoose setup
-// mongoose.connect(`${tokens.mongo}`, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-// });
-
-// let solSchema = new mongoose.Schema({
-//     url: String,
-//     dayNumber: Number,
-//     userName: String,
-//     userid: Number,
-//     langName: String,
-//     avatarUrl: String,
-//     Time: { type: Date, default: Date.now }
-// });
-
-// let userSchema = new mongoose.Schema({
-//     username: String, //username format -> username#discrimanator
-//     userid: Number,
-//     point: Number,
-//     badgePoint: Number,
-//     avatarUrl: String,
-//     langArray: []
-// });
-
-// //snippet model
-// const Snippet = mongoose.model("Snippet", solSchema);
-// //user model
-// let User = mongoose.model("User", userSchema);
-
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
     const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
