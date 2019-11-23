@@ -1,6 +1,6 @@
 const User = require("../models/User.model");
 
-class UserController {
+class UsersService {
     constructor(logger) {
         this.logger = logger; // not in use yet, implement
     }
@@ -43,4 +43,4 @@ class UserController {
     }
 }
 
-module.exports = UserController;
+module.exports = UsersService;

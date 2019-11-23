@@ -1,7 +1,7 @@
 const Solution = require("../models/Solution.model");
 const User = require("../models/User.model");
 
-class RatingsController {
+class RatingsService {
     constructor(logger) {
         this.logger = logger;
     }
@@ -15,4 +15,4 @@ class RatingsController {
     async hasUserVotedOnSolution() {}
 }
 
-module.exports = RatingsController;
+module.exports = RatingsService;

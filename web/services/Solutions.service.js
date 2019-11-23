@@ -1,6 +1,6 @@
 const Solution = require("../models/Solution.model");
 
-class SolutionsController {
+class SolutionsService {
     constructor(logger) {
         this.logger = logger; // not in use yet, implement
     }
@@ -44,4 +44,4 @@ class SolutionsController {
     }
 }
 
-module.exports = SolutionsController;
+module.exports = SolutionsService;
