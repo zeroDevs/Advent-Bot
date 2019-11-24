@@ -128,9 +128,13 @@ router.post("/submit", verifyToken, (req, res) => {
     //extract date from request
     // convert epoch to human-readable form
     let dateConverter = new Date(parseInt(userData.date));
-    let submittedDate = dateConverter.getDate();
+    let submittedDate = new Date(parseInt(userData.date));
 
-    if (submittedDate > dateEST()) {
+    if (
+        submittedDate.getDate() > dateEST() ||
+        submittedDate.getMonth != 12 ||
+        submittedDate.getFullYear != 2019
+    ) {
         console.log("INVALID DATE");
         res.status(400).json({
             error: "Invalid date",
@@ -172,7 +176,7 @@ router.post("/submit", verifyToken, (req, res) => {
                 return;
             } else {
                 Snippet.find(
-                    { dayNumber: submittedDate, userid: userData.id },
+                    { dayNumber: submittedDate.getDate(), userid: userData.id },
                     (err, sol) => {
                         if (err) console.error(err);
 
@@ -182,10 +186,14 @@ router.post("/submit", verifyToken, (req, res) => {
                                 for (let i = 0; i < sol.length; i++) {
                                     if (userData.langName === sol[i].langName) {
                                         console.error(
-                                            `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`
+                                            `Solution for day ${submittedDate.getDate()} in ${
+                                                userData.langName
+                                            } is already submitted.`
                                         );
                                         res.status(400).json({
-                                            error: `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`,
+                                            error: `Solution for day ${submittedDate.getDate()} in ${
+                                                userData.langName
+                                            } is already submitted.`,
                                             isSuccessful: false,
                                             data: {}
                                         });
@@ -197,10 +205,12 @@ router.post("/submit", verifyToken, (req, res) => {
                                 localBadgePoint = 1;
                             } else {
                                 //user hasn't submitted this day's solution
-                                if (submittedDate == dateEST()) {
+                                if (submittedDate.getDate() == dateEST()) {
                                     //today's solution --> point+2
                                     localPoint = 2;
-                                } else if (submittedDate < dateEST()) {
+                                } else if (
+                                    submittedDate.getDate() < dateEST()
+                                ) {
                                     //previous day's solution
                                     localPoint = 1;
                                 }
@@ -211,7 +221,7 @@ router.post("/submit", verifyToken, (req, res) => {
                         Snippet.create(
                             {
                                 url: userData.url,
-                                dayNumber: submittedDate,
+                                dayNumber: submittedDate.getDate(),
                                 userName: userData.userName,
                                 userid: userData.id,
                                 avatarUrl: userData.avatarUrl,
