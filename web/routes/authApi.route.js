@@ -96,9 +96,15 @@ router.post("/submit", verifyToken, (req, res) => {
     }
 
     //extract date from request
-    let submittedDate = parseInt(userData.date.split("-")[2]);
+    // convert epoch to human-readable form
+    let submittedDate = new Date(userData.date);
+    console.log(typeof submittedDate);
 
-    if (submittedDate > dateEST()) {
+    if (
+        submittedDate.getDate() > dateEST() ||
+        submittedDate.getMonth() + 1 != 12 ||
+        submittedDate.getFullYear() != 2019
+    ) {
         console.log("INVALID DATE");
         res.status(400).json({
             error: "Invalid date",
@@ -111,7 +117,7 @@ router.post("/submit", verifyToken, (req, res) => {
     //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
     //check if user exist
-    User.findOne({ userid: userData.id }, (err, userFound) => {
+    User.findOne({ userid: userData.userId }, (err, userFound) => {
         if (err) {
             console.error("FIND USER ERROR:", error);
         }
@@ -120,8 +126,8 @@ router.post("/submit", verifyToken, (req, res) => {
             localBadgePoint = 0;
             User.create({
                 username: userData.userName,
-                userid: userData.id,
-                avatarUrl: userData.userAvatar,
+                userid: userData.userId,
+                avatarUrl: userData.avatarUrl,
                 point: localPoint,
                 badgePoint: localBadgePoint,
                 langArray: []
@@ -140,7 +146,10 @@ router.post("/submit", verifyToken, (req, res) => {
                 return;
             } else {
                 Snippet.find(
-                    { dayNumber: submittedDate, userid: userData.id },
+                    {
+                        dayNumber: submittedDate.getDate(),
+                        userid: userData.userId
+                    },
                     (err, sol) => {
                         if (err) console.error(err);
 
@@ -150,10 +159,14 @@ router.post("/submit", verifyToken, (req, res) => {
                                 for (let i = 0; i < sol.length; i++) {
                                     if (userData.langName === sol[i].langName) {
                                         console.error(
-                                            `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`
+                                            `Solution for day ${submittedDate.getDate()} in ${
+                                                userData.langName
+                                            } is already submitted.`
                                         );
                                         res.status(400).json({
-                                            error: `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`,
+                                            error: `Solution for day ${submittedDate.getDate()} in ${
+                                                userData.langName
+                                            } is already submitted.`,
                                             isSuccessful: false,
                                             data: {}
                                         });
@@ -165,10 +178,12 @@ router.post("/submit", verifyToken, (req, res) => {
                                 localBadgePoint = 1;
                             } else {
                                 //user hasn't submitted this day's solution
-                                if (submittedDate == dateEST()) {
+                                if (submittedDate.getDate() == dateEST()) {
                                     //today's solution --> point+2
                                     localPoint = 2;
-                                } else if (submittedDate < dateEST()) {
+                                } else if (
+                                    submittedDate.getDate() < dateEST()
+                                ) {
                                     //previous day's solution
                                     localPoint = 1;
                                 }
@@ -179,9 +194,9 @@ router.post("/submit", verifyToken, (req, res) => {
                         Snippet.create(
                             {
                                 url: userData.url,
-                                dayNumber: submittedDate,
+                                dayNumber: submittedDate.getDate(),
                                 userName: userData.userName,
-                                userid: userData.id,
+                                userid: userData.userId,
                                 avatarUrl: userData.avatarUrl,
                                 langName: userData.langName,
                                 Time: timeEST()
@@ -193,7 +208,7 @@ router.post("/submit", verifyToken, (req, res) => {
 
                         //update user points
                         User.findOneAndUpdate(
-                            { userid: userData.id },
+                            { userid: userData.userId },
                             {
                                 $inc: {
                                     point: localPoint,
@@ -212,38 +227,41 @@ router.post("/submit", verifyToken, (req, res) => {
                         );
 
                         //add language used to array in user model
-                        User.findOne({ userid: userData.id }, (err, user) => {
-                            if (err) console.error(err);
-                            if (user) {
-                                console.log("FINDONE USER:", user);
-                                if (
-                                    user.langArray.includes(
-                                        userData.langName.toLowerCase()
-                                    )
-                                ) {
-                                    console.log(
-                                        userData.langName.toLowerCase()
-                                    );
-                                    return;
-                                } else {
-                                    user.langArray.push(
-                                        userData.langName.toLowerCase()
-                                    );
-                                    console.log(user.langArray);
-                                    User.findOneAndUpdate(
-                                        { userid: userData.id },
-                                        {
-                                            langArray: user.langArray
-                                        },
-                                        { upsert: true },
-                                        (err, done) => {
-                                            if (err) console.error(err);
-                                            return;
-                                        }
-                                    );
+                        User.findOne(
+                            { userid: userData.userId },
+                            (err, user) => {
+                                if (err) console.error(err);
+                                if (user) {
+                                    console.log("FINDONE USER:", user);
+                                    if (
+                                        user.langArray.includes(
+                                            userData.langName.toLowerCase()
+                                        )
+                                    ) {
+                                        console.log(
+                                            userData.langName.toLowerCase()
+                                        );
+                                        return;
+                                    } else {
+                                        user.langArray.push(
+                                            userData.langName.toLowerCase()
+                                        );
+                                        console.log(user.langArray);
+                                        User.findOneAndUpdate(
+                                            { userid: userData.userId },
+                                            {
+                                                langArray: user.langArray
+                                            },
+                                            { upsert: true },
+                                            (err, done) => {
+                                                if (err) console.error(err);
+                                                return;
+                                            }
+                                        );
+                                    }
                                 }
                             }
-                        });
+                        );
                     }
                 );
             }
