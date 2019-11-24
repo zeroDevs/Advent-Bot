@@ -126,7 +126,9 @@ router.post("/submit", verifyToken, (req, res) => {
     }
 
     //extract date from request
-    let submittedDate = parseInt(userData.date.split("-")[2]);
+    // convert epoch to human-readable form
+    let dateConverter = new Date(parseInt(userData.date));
+    let submittedDate = dateConverter.getDate();
 
     if (submittedDate > dateEST()) {
         console.log("INVALID DATE");
