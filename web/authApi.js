@@ -127,12 +127,12 @@ router.post("/submit", verifyToken, (req, res) => {
 
     //extract date from request
     // convert epoch to human-readable form
-    let dateConverter = new Date(parseInt(userData.date));
-    let submittedDate = new Date(parseInt(userData.date));
+    let submittedDate = new Date(userData.date);
+    console.log(typeof submittedDate);
 
     if (
         submittedDate.getDate() > dateEST() ||
-        submittedDate.getMonth() != 12 ||
+        submittedDate.getMonth() + 1 != 12 ||
         submittedDate.getFullYear() != 2019
     ) {
         console.log("INVALID DATE");
