@@ -147,7 +147,7 @@ router.post("/submit", verifyToken, (req, res) => {
     //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
     //check if user exist
-    User.findOne({ userid: userData.id }, (err, userFound) => {
+    User.findOne({ userid: userData.userId }, (err, userFound) => {
         if (err) {
             console.error("FIND USER ERROR:", error);
         }
@@ -156,8 +156,8 @@ router.post("/submit", verifyToken, (req, res) => {
             localBadgePoint = 0;
             User.create({
                 username: userData.userName,
-                userid: userData.id,
-                avatarUrl: userData.userAvatar,
+                userid: userData.userId,
+                avatarUrl: userData.avatarUrl,
                 point: localPoint,
                 badgePoint: localBadgePoint,
                 langArray: []
@@ -176,7 +176,10 @@ router.post("/submit", verifyToken, (req, res) => {
                 return;
             } else {
                 Snippet.find(
-                    { dayNumber: submittedDate.getDate(), userid: userData.id },
+                    {
+                        dayNumber: submittedDate.getDate(),
+                        userid: userData.userId
+                    },
                     (err, sol) => {
                         if (err) console.error(err);
 
@@ -223,7 +226,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 url: userData.url,
                                 dayNumber: submittedDate.getDate(),
                                 userName: userData.userName,
-                                userid: userData.id,
+                                userid: userData.userId,
                                 avatarUrl: userData.avatarUrl,
                                 langName: userData.langName,
                                 Time: timeEST()
@@ -235,7 +238,7 @@ router.post("/submit", verifyToken, (req, res) => {
 
                         //update user points
                         User.findOneAndUpdate(
-                            { userid: userData.id },
+                            { userid: userData.userId },
                             {
                                 $inc: {
                                     point: localPoint,
@@ -254,38 +257,41 @@ router.post("/submit", verifyToken, (req, res) => {
                         );
 
                         //add language used to array in user model
-                        User.findOne({ userid: userData.id }, (err, user) => {
-                            if (err) console.error(err);
-                            if (user) {
-                                console.log("FINDONE USER:", user);
-                                if (
-                                    user.langArray.includes(
-                                        userData.langName.toLowerCase()
-                                    )
-                                ) {
-                                    console.log(
-                                        userData.langName.toLowerCase()
-                                    );
-                                    return;
-                                } else {
-                                    user.langArray.push(
-                                        userData.langName.toLowerCase()
-                                    );
-                                    console.log(user.langArray);
-                                    User.findOneAndUpdate(
-                                        { userid: userData.id },
-                                        {
-                                            langArray: user.langArray
-                                        },
-                                        { upsert: true },
-                                        (err, done) => {
-                                            if (err) console.error(err);
-                                            return;
-                                        }
-                                    );
+                        User.findOne(
+                            { userid: userData.userId },
+                            (err, user) => {
+                                if (err) console.error(err);
+                                if (user) {
+                                    console.log("FINDONE USER:", user);
+                                    if (
+                                        user.langArray.includes(
+                                            userData.langName.toLowerCase()
+                                        )
+                                    ) {
+                                        console.log(
+                                            userData.langName.toLowerCase()
+                                        );
+                                        return;
+                                    } else {
+                                        user.langArray.push(
+                                            userData.langName.toLowerCase()
+                                        );
+                                        console.log(user.langArray);
+                                        User.findOneAndUpdate(
+                                            { userid: userData.userId },
+                                            {
+                                                langArray: user.langArray
+                                            },
+                                            { upsert: true },
+                                            (err, done) => {
+                                                if (err) console.error(err);
+                                                return;
+                                            }
+                                        );
+                                    }
                                 }
                             }
-                        });
+                        );
                     }
                 );
             }
