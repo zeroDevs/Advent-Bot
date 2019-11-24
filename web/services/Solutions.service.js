@@ -9,7 +9,7 @@ class SolutionsService {
     async urlInUse(url) {
         try {
             const solution = await Solution.findOne({ url }).exec();
-            return Boolean(solution);
+            return Boolean(solution && solution.length > 0);
         } catch (error) {
             this.logger.error(`*urlInUse*: ${error}`);
         }

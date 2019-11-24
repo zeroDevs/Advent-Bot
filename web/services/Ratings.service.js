@@ -68,7 +68,7 @@ class RatingsService {
                 solutionId,
                 userId
             }).exec();
-            return Boolean(rating);
+            return Boolean(rating && rating.length > 0);
         } catch (error) {
             this.logger.error(`*hasUserVotedOnSolution*: ${error}`);
         }

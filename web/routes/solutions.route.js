@@ -18,20 +18,24 @@ route.get("/", async (req, res) => {
 
     const ratings = await RatingsService.getAllRatings();
 
-    let data;
-    try {
-        solutions = JSON.parse(solutions);
-        ratings = JSON.parse(ratings);
-
-        data = solutions.forEach(solution => {
-            solution.ratings = ratings.filter(rating => rating.solutionId === solution._id);
-            solution.averageRating = RatingsService.calculateAverage(solution.ratings);
-        });
-    } catch (error) {}
+    const data = solutions.map(solution => {
+        const temp = { ...solution._doc };
+        temp.ratings = ratings.filter(rating => String(rating._doc.solutionId) == String(temp._id));
+        temp.averageRating = RatingsService.calculateAverage(temp.ratings);
+        return temp;
+    });
 
     if (data) return res.status(200).json(data);
 
     return res.sendStatus(500);
+});
+
+route.post("/", async (req, res) => {
+    const { ...solution } = req.body;
+
+    await SolutionsService.createSolution({ ...solution });
+
+    res.sendStatus(201);
 });
 
 /***
@@ -49,7 +53,7 @@ route.post("/vote", async (req, res) => {
     const { ...rating } = req.body;
 
     if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId)) {
-        return sendStatus(400);
+        return res.sendStatus(400);
     }
 
     if (await RatingsService.createNewRating({ ...rating })) {
