@@ -1,6 +1,6 @@
 {
     "token": "bot tokens",
-    "mongo": "mongodb://localhost",
+    "mongo": "mongodb://localhost:27017/AOC",
     "redirect": "http://localhost:8001/api/discord/callback",
     "redirect_front": "http://localhost:3000",
     "CLIENT_ID": "bot's client id",
