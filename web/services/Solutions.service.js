@@ -61,6 +61,17 @@ class SolutionsService {
             this.logger.error(`*deleteSolution*: ${error}`);
         }
     }
+
+    async getRecentSolutions(qty) {
+        try {
+            const data = await Solution.find()
+                .sort({ $natural: -1 })
+                .limit(parseInt(qty));
+            return data;
+        } catch (error) {
+            this.logger.error(`*recentSolution*: ${error}`);
+        }
+    }
 }
 
 module.exports = new SolutionsService();
