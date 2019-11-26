@@ -79,4 +79,12 @@ route.get("/recent/", async (req, res) => {
     return res.sendStatus(500);
 });
 
+route.get("/top", async (req, res) => {
+    const qty = req.query.qty ? req.query.qty : 6;
+    const solutions = await SolutionsService.getTopSolutions(qty);
+
+    if (solutions) return res.status(200).json(solutions);
+    return res.sendStatus(500);
+});
+
 module.exports = route;

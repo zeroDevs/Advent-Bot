@@ -65,11 +65,22 @@ class SolutionsService {
     async getRecentSolutions(qty) {
         try {
             const data = await Solution.find()
-                .sort({ $natural: -1 })
+                .sort({ Time: -1 })
                 .limit(parseInt(qty));
             return data;
         } catch (error) {
             this.logger.error(`*recentSolution*: ${error}`);
+        }
+    }
+
+    async getTopSolutions(qty) {
+        try {
+            const data = await Solution.find()
+                .sort({ averageRating: -1 })
+                .limit(parseInt(qty));
+            return data;
+        } catch (error) {
+            this.logger.error(`*topSolution*: ${error}`);
         }
     }
 }
