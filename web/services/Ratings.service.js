@@ -6,6 +6,15 @@ class RatingsService {
         this.logger = console;
     }
 
+    async getRating(ratingId) {
+        try {
+            const data = await Rating.findById(ratingId).exec();
+            return data;
+        } catch (error) {
+            this.logger.error(`*getRating*: ${error}`);
+        }
+    }
+
     async getRatingsForUser(userId) {
         try {
             const ratings = await Rating.find({ userId }).exec();
@@ -43,6 +52,14 @@ class RatingsService {
         }
     }
 
+    async deleteRating(ratingId) {
+        try {
+            await Rating.findByIdAndDelete({ _id: ratingId }).exec();
+        } catch (error) {
+            this.logger.error(`*deleteRating*: ${error}`);
+        }
+    }
+
     async updateRating(userId, solutionId, rating) {
         try {
             await Rating.findOneAndUpdate({ userId, solutionId }, { ...rating }).exec();
@@ -72,6 +89,10 @@ class RatingsService {
         } catch (error) {
             this.logger.error(`*hasUserVotedOnSolution*: ${error}`);
         }
+    }
+
+    isOwnRating(rating, userId) {
+        return String(rating.userId) === String(userId);
     }
 }
 

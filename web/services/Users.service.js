@@ -8,7 +8,7 @@ class UsersService {
 
     async userExists(username) {
         try {
-            const user = User.findOne({ username }).exec();
+            const user = await User.findOne({ username }).exec();
             return Boolean(user && user.length > 0);
         } catch (error) {
             this.logger.error(`*userExists*: ${error}`);

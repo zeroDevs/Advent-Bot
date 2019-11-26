@@ -30,14 +30,6 @@ route.get("/", async (req, res) => {
     return res.sendStatus(500);
 });
 
-route.post("/", async (req, res) => {
-    const { ...solution } = req.body;
-
-    await SolutionsService.createSolution({ ...solution });
-
-    res.sendStatus(201);
-});
-
 /***
  * @description Creates a new rating for the solution
  *
@@ -59,6 +51,21 @@ route.post("/vote", async (req, res) => {
     if (await RatingsService.createNewRating({ ...rating })) {
         return res.sendStatus(201);
     }
+    return res.sendStatus(400);
+});
+
+route.delete("/vote/:ratingId", async (req, res) => {
+    const { ratingId } = req.params;
+    const { userId } = req.body;
+
+    const rating = await RatingsService.getRating(ratingId);
+    const isOwnRating = RatingsService.isOwnRating(rating, userId);
+
+    if (isOwnRating) {
+        await RatingsService.deleteRating(ratingId);
+        return res.sendStatus(200);
+    }
+
     return res.sendStatus(400);
 });
 
