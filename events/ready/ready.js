@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 module.exports = async client => {
     // Log that the bot is online.
     console.log(
@@ -19,11 +17,4 @@ module.exports = async client => {
     } catch (e) {
         console.log(e.stack);
     }
-
-    mongoose
-        .connect(`${client.settings.tokens.mongoToken}`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        })
-        .then(() => console.log("Connected to the database"));
 };

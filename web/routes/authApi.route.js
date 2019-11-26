@@ -12,9 +12,7 @@ router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
     const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
     const scope = "&scope=identify%20guilds&response_type=code&redirect_uri=";
-    res.redirect(
-        `${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}?location=${location}`
-    );
+    res.redirect(`${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}?location=${location}`);
 });
 
 router.get(
@@ -54,9 +52,7 @@ router.get(
             { expiresIn: "7d" },
             (err, token) => {
                 if (err) throw err;
-                res.redirect(
-                    `${tokens.redirect_front}${location}/?token=${token}`
-                );
+                res.redirect(`${tokens.redirect_front}${location}/?token=${token}`);
             }
         );
     })
@@ -75,15 +71,8 @@ router.post("/submit", verifyToken, (req, res) => {
 
     //verify token
     jwt.verify(req.token, tokens.jwtToken, (err, dec) => {
-        if (err)
-            console.error(
-                "=========================\n",
-                err,
-                "\n========================="
-            );
-        return dec == undefined
-            ? (isTokenValid = false)
-            : (isTokenValid = true);
+        if (err) console.error("=========================\n", err, "\n=========================");
+        return dec == undefined ? (isTokenValid = false) : (isTokenValid = true);
     });
 
     if (!isTokenValid) {
@@ -181,9 +170,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 if (submittedDate.getDate() == dateEST()) {
                                     //today's solution --> point+2
                                     localPoint = 2;
-                                } else if (
-                                    submittedDate.getDate() < dateEST()
-                                ) {
+                                } else if (submittedDate.getDate() < dateEST()) {
                                     //previous day's solution
                                     localPoint = 1;
                                 }
@@ -227,41 +214,30 @@ router.post("/submit", verifyToken, (req, res) => {
                         );
 
                         //add language used to array in user model
-                        User.findOne(
-                            { userid: userData.userId },
-                            (err, user) => {
-                                if (err) console.error(err);
-                                if (user) {
-                                    console.log("FINDONE USER:", user);
-                                    if (
-                                        user.langArray.includes(
-                                            userData.langName.toLowerCase()
-                                        )
-                                    ) {
-                                        console.log(
-                                            userData.langName.toLowerCase()
-                                        );
-                                        return;
-                                    } else {
-                                        user.langArray.push(
-                                            userData.langName.toLowerCase()
-                                        );
-                                        console.log(user.langArray);
-                                        User.findOneAndUpdate(
-                                            { userid: userData.userId },
-                                            {
-                                                langArray: user.langArray
-                                            },
-                                            { upsert: true },
-                                            (err, done) => {
-                                                if (err) console.error(err);
-                                                return;
-                                            }
-                                        );
-                                    }
+                        User.findOne({ userid: userData.userId }, (err, user) => {
+                            if (err) console.error(err);
+                            if (user) {
+                                console.log("FINDONE USER:", user);
+                                if (user.langArray.includes(userData.langName.toLowerCase())) {
+                                    console.log(userData.langName.toLowerCase());
+                                    return;
+                                } else {
+                                    user.langArray.push(userData.langName.toLowerCase());
+                                    console.log(user.langArray);
+                                    User.findOneAndUpdate(
+                                        { userid: userData.userId },
+                                        {
+                                            langArray: user.langArray
+                                        },
+                                        { upsert: true },
+                                        (err, done) => {
+                                            if (err) console.error(err);
+                                            return;
+                                        }
+                                    );
                                 }
                             }
-                        );
+                        });
                     }
                 );
             }
@@ -269,13 +245,16 @@ router.post("/submit", verifyToken, (req, res) => {
     });
 });
 
+// TODO: This has been moved to ./utils/date.utils
+// Remove these an switch dependacies to the new location
 const timeEST = () => {
     //time convertion to EST
     var dt = new Date();
     var offset = -300; //Timezone offset for EST in minutes.
     return new Date(dt.getTime() + offset * 60 * 1000);
 };
-
+// TODO: This has been moved to ./utils/date.utils
+// Remove these an switch dependacies to the new location
 const dateEST = () => {
     //date convertion to EST
     var dt = new Date();
