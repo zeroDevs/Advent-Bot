@@ -6,6 +6,15 @@ class UsersService {
         this.logger = console;
     }
 
+    async allUsers(username) {
+        try {
+            const user = User.find({}).exec();
+            return user;
+        } catch (error) {
+            this.logger.error(`*userExists*: ${error}`);
+        }
+    }
+
     async userExists(username) {
         try {
             const user = User.findOne({ username }).exec();
