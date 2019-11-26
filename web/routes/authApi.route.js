@@ -180,7 +180,7 @@ router.post("/submit", verifyToken, (req, res) => {
                         }
 
                         //add solution to db
-                        Soltuion.create(
+                        Solution.create(
                             {
                                 url: userData.url,
                                 dayNumber: submittedDate.getDate(),
