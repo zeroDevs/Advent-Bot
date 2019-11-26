@@ -11,7 +11,7 @@ class UsersService {
             const user = User.find({}).exec();
             return user;
         } catch (error) {
-            this.logger.error(`*userExists*: ${error}`);
+            this.logger.error(`*allUsers*: ${error}`);
         }
     }
 
