@@ -8,6 +8,7 @@ const fetch = require("node-fetch");
 const { catchAsync } = require("../utils");
 const tokens = require("../../configs/tokens.json");
 const User = require("../models/User.model");
+const Solution = require("../models/Solution.model");
 
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
@@ -124,7 +125,7 @@ router.post("/submit", verifyToken, (req, res) => {
             });
         }
         //check if url already exist
-        Snippet.findOne({ url: userData.url }, (err, urlExist) => {
+        Solution.findOne({ url: userData.url }, (err, urlExist) => {
             if (err) console.error(err);
 
             if (urlExist) {
@@ -135,7 +136,7 @@ router.post("/submit", verifyToken, (req, res) => {
                 });
                 return;
             } else {
-                Snippet.find(
+                Solution.find(
                     {
                         dayNumber: submittedDate.getDate(),
                         userid: userData.userId
@@ -179,7 +180,7 @@ router.post("/submit", verifyToken, (req, res) => {
                         }
 
                         //add solution to db
-                        Snippet.create(
+                        Soltuion.create(
                             {
                                 url: userData.url,
                                 dayNumber: submittedDate.getDate(),
