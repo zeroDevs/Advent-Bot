@@ -54,7 +54,7 @@ router.get(
             { expiresIn: "7d" },
             (err, token) => {
                 if (err) throw err;
-                res.redirect(`${tokens.redirect_front}${location}/?token=${token}`);
+                res.redirect(`${tokens.redirect_front}${location}?token=${token}`);
             }
         );
     })
