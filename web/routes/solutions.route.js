@@ -54,6 +54,8 @@ route.post("/vote", async (req, res) => {
     return res.sendStatus(400);
 });
 
+// vulnerable! ca send someone else's userId
+// need to add an authentication/authorization middleware to validate user with JWT
 route.delete("/vote/:ratingId", async (req, res) => {
     const { ratingId } = req.params;
     const { userId } = req.body;
