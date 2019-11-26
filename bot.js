@@ -1,11 +1,5 @@
 const Discord = require("discord.js");
 
-// if the bot does not use the database, move these to the server.js file
-// this'll expose the same connection globally for bot and server
-const tokens = require("./configs/tokens.json");
-const db = require("./database");
-db.connect(tokens.mongo).then(() => "database is connected");
-
 //Prevents the bot from using @everyone
 const client = new Discord.Client({ disableEveryone: true });
 require("./web/server")(client);

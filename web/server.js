@@ -1,9 +1,11 @@
+const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const port = 8001;
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+const tokens = require("../configs/tokens.json");
 
 const indexRoute = require("./routes/index.route");
 const apiRoute = require("./routes/authApi.route");
@@ -18,6 +20,12 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 module.exports = client => {
+    mongoose
+        .connect(`${tokens.mongo}`, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        })
+        .then(() => console.log("Connected to the database"));
     app.use(cors());
     app.use("/", indexRoute);
     app.use("/api", apiRoute);
