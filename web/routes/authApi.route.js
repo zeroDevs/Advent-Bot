@@ -7,6 +7,7 @@ const fetch = require("node-fetch");
 
 const { catchAsync } = require("../utils");
 const tokens = require("../../configs/tokens.json");
+const User = require("../models/User.model");
 
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
