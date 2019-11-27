@@ -24,6 +24,15 @@ class SolutionsService {
         }
     }
 
+    async getSolutionById(id) {
+        try {
+            const data = await Solution.findById(id).exec();
+            return data;
+        } catch (error) {
+            this.logger.error(`*getSolutionById*: ${error}`);
+        }
+    }
+
     async getSolutionsForDay(dayNumber) {
         try {
             const data = await Solution.find({ dayNumber }).exec();
@@ -50,6 +59,17 @@ class SolutionsService {
             return true;
         } catch (error) {
             this.logger.error(`*createSolution*: ${error}`);
+        }
+    }
+
+    async updateSolution(id, newInformation) {
+        try {
+            const updatedSolution = await Solution.findByIdAndUpdate(id, {
+                ...newInformation
+            }).exec();
+            return updatedSolution;
+        } catch (error) {
+            this.logger.error(`*updateSolution*: ${error}`);
         }
     }
 

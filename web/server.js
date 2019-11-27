@@ -23,7 +23,8 @@ module.exports = client => {
     mongoose
         .connect(`${tokens.mongo}`, {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            useFindAndModify: false
         })
         .then(() => console.log("Connected to the database"));
     app.use(cors());

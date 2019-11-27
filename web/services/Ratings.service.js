@@ -42,11 +42,15 @@ class RatingsService {
         }
     }
 
-    async createNewRating(rating) {
+    async createNewRating(rating, updateSolution) {
         try {
             const newRating = new Rating({ ...rating });
-            newRating.save();
-            return true;
+            await newRating.save();
+            const ratings = await Rating.find({ solutionId: rating.solutionId }).exec();
+            const updatedSolution = await updateSolution(rating.solutionId, {
+                averageRating: this.calculateAverage(ratings)
+            });
+            return updateSolution;
         } catch (error) {
             this.logger.error(`*createNewRating*: ${error}`);
         }
