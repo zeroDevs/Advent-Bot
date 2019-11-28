@@ -64,7 +64,7 @@ router.get(
 				let guildCheck = checkGuilds(guildsJson);
 
         //save user if doesn't exist
-        User.findOne({ userid: profileJson.userId }, (err, user) => {
+        User.findOne({ userid: profileJson.id }, (err, user) => {
             if (err) console.error(err);
             if (!user) {
             	User.create({
