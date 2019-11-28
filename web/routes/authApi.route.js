@@ -39,17 +39,27 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${tokenJson.access_token}`,
-                "Content-Type": "application/x-www-form-urlencoded"
+              Authorization: `Bearer ${tokenJson.access_token}`,
+              "Content-Type": "application/x-www-form-urlencoded"
             }
         });
+
+        const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
+        	method: "POST",
+        	headers: {
+            Authorization: `Bearer ${tokenJson.access_token}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        });
+
         const profileJson = await userProfile.json();
+        const guildsJson = await userGuilds.json();
         console.log(profileJson);
 
         //TODO: hash discord token with bcrypt
 
         jwt.sign(
-            { userProfile: profileJson },
+            { userProfile: profileJson, userGuilds: guildsJson },
             tokens.jwtToken,
             { expiresIn: "7d" },
             (err, token) => {
