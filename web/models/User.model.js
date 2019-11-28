@@ -7,6 +7,7 @@ const UserSchema = new Schema({
     point: Number,
     badgePoint: Number,
     avatarUrl: String,
+    isZTM: Boolean,
     langArray: []
 });
 

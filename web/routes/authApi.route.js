@@ -6,6 +6,7 @@ const btoa = require("btoa");
 const fetch = require("node-fetch");
 
 const { catchAsync } = require("../utils");
+const { estDay, estTime } = require("../utils/date.utils");
 const tokens = require("../../configs/tokens.json");
 const User = require("../models/User.model");
 const Solution = require("../models/Solution.model");
@@ -39,17 +40,48 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${tokenJson.access_token}`,
-                "Content-Type": "application/x-www-form-urlencoded"
+              Authorization: `Bearer ${tokenJson.access_token}`,
+              "Content-Type": "application/x-www-form-urlencoded"
             }
         });
+
+        const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
+        	method: "POST",
+        	headers: {
+            Authorization: `Bearer ${tokenJson.access_token}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        });
+
         const profileJson = await userProfile.json();
+        const guildsJson = await userGuilds.json();
         console.log(profileJson);
 
-        //TODO: hash discord token with bcrypt
+        const avatar = profileJson.avatar !== null
+					? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=1024`
+					: `https://robohash.org/${profileJson.username}?set=set2`;
 
+				let guildCheck = checkGuilds(guildsJson);
+
+        //save user if doesn't exist
+        User.findOne({ userid: profileJson.id }, (err, user) => {
+            if (err) console.error(err);
+            if (!user) {
+            	User.create({
+                username: profileJson.username,
+                userid: profileJson.id,
+                avatarUrl: avatar,
+                point: 0,
+                badgePoint: 0,
+                isZTM: guildCheck,
+                langArray: []
+	            });
+            }
+        });
+
+        //TODO: hash discord token with bcrypt
         jwt.sign(
-            { userProfile: profileJson },
+            { userProfile: profileJson, userGuilds: guildsJson },
             tokens.jwtToken,
             { expiresIn: "7d" },
             (err, token) => {
@@ -92,7 +124,7 @@ router.post("/submit", verifyToken, (req, res) => {
     console.log(typeof submittedDate);
 
     if (
-        submittedDate.getDate() > dateEST() ||
+        submittedDate.getDate() > estDay() ||
         submittedDate.getMonth() + 1 != 12 ||
         submittedDate.getFullYear() != 2019
     ) {
@@ -113,6 +145,7 @@ router.post("/submit", verifyToken, (req, res) => {
             console.error("FIND USER ERROR:", error);
         }
         if (!userFound) {
+        	//obsolete but dont delete 
             localPoint = 0;
             localBadgePoint = 0;
             User.create({
@@ -169,10 +202,10 @@ router.post("/submit", verifyToken, (req, res) => {
                                 localBadgePoint = 1;
                             } else {
                                 //user hasn't submitted this day's solution
-                                if (submittedDate.getDate() == dateEST()) {
+                                if (submittedDate.getDate() == estDay()) {
                                     //today's solution --> point+2
                                     localPoint = 2;
-                                } else if (submittedDate.getDate() < dateEST()) {
+                                } else if (submittedDate.getDate() < estDay()) {
                                     //previous day's solution
                                     localPoint = 1;
                                 }
@@ -188,7 +221,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 userid: userData.userId,
                                 avatarUrl: userData.avatarUrl,
                                 langName: userData.langName,
-                                Time: timeEST()
+                                Time: estTime()
                             },
                             (err, done) => {
                                 if (err) console.error(err);
@@ -247,23 +280,14 @@ router.post("/submit", verifyToken, (req, res) => {
     });
 });
 
-// TODO: This has been moved to ./utils/date.utils
-// Remove these an switch dependacies to the new location
-const timeEST = () => {
-    //time convertion to EST
-    var dt = new Date();
-    var offset = -300; //Timezone offset for EST in minutes.
-    return new Date(dt.getTime() + offset * 60 * 1000);
-};
-// TODO: This has been moved to ./utils/date.utils
-// Remove these an switch dependacies to the new location
-const dateEST = () => {
-    //date convertion to EST
-    var dt = new Date();
-    var offset = -300; //Timezone offset for EST in minutes.
-    let d = new Date(dt.getTime() + offset * 60 * 1000);
-    return d.getDate();
-};
+const checkGuilds = (guildArray) => {
+	for(let i=0; i<guildArray.length; i++) {
+		if(guildArray[i].id === tokens.serverid) {
+			return true;
+		}
+	}
+	return false;
+}
 
 function verifyToken(req, res, next) {
     const bearerHeader = req.headers["authorization"];
