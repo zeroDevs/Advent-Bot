@@ -24,6 +24,15 @@ class SolutionsService {
         }
     }
 
+    async getSolutionById(id) {
+        try {
+            const data = await Solution.findById(id).exec();
+            return data;
+        } catch (error) {
+            this.logger.error(`*getSolutionById*: ${error}`);
+        }
+    }
+
     async getSolutionsForDay(dayNumber) {
         try {
             const data = await Solution.find({ dayNumber }).exec();
@@ -53,6 +62,17 @@ class SolutionsService {
         }
     }
 
+    async updateSolution(id, newInformation) {
+        try {
+            const updatedSolution = await Solution.findByIdAndUpdate(id, {
+                ...newInformation
+            }).exec();
+            return updatedSolution;
+        } catch (error) {
+            this.logger.error(`*updateSolution*: ${error}`);
+        }
+    }
+
     async deleteSolution(solutionId) {
         try {
             await Solution.findByIdAndDelete(solutionId).exec();
@@ -65,11 +85,22 @@ class SolutionsService {
     async getRecentSolutions(qty) {
         try {
             const data = await Solution.find()
-                .sort({ $natural: -1 })
+                .sort({ Time: -1 })
                 .limit(parseInt(qty));
             return data;
         } catch (error) {
             this.logger.error(`*recentSolution*: ${error}`);
+        }
+    }
+
+    async getTopSolutions(qty) {
+        try {
+            const data = await Solution.find()
+                .sort({ averageRating: -1 })
+                .limit(parseInt(qty));
+            return data;
+        } catch (error) {
+            this.logger.error(`*topSolution*: ${error}`);
         }
     }
 }

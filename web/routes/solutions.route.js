@@ -21,7 +21,6 @@ route.get("/", async (req, res) => {
     const data = solutions.map(solution => {
         const temp = { ...solution._doc };
         temp.ratings = ratings.filter(rating => String(rating._doc.solutionId) == String(temp._id));
-        temp.averageRating = RatingsService.calculateAverage(temp.ratings);
         return temp;
     });
 
@@ -29,16 +28,6 @@ route.get("/", async (req, res) => {
 
     return res.sendStatus(500);
 });
-
-/***
- * @description Creates a new rating for the solution
- *
- * @body {
- *      ratingScore: Number;
- *      solutionId: MongoDb ObjectId;
- *      userId: MongoDb ObjectId
- * }
- */
 
 // add middleware so only logged in users can vote
 route.post("/vote", async (req, res) => {
@@ -48,13 +37,15 @@ route.post("/vote", async (req, res) => {
         return res.sendStatus(400);
     }
 
-    if (await RatingsService.createNewRating({ ...rating })) {
-        return res.sendStatus(201);
-    }
-    return res.sendStatus(400);
+    // creates a new rating document, re-calculates the average ratings and updates the solution
+    // returns the updated solution
+    const updatedSolution = await RatingsService.createNewRating(
+        { ...rating },
+        SolutionsService.updateSolution
+    );
+    return res.status(201).json(updatedSolution);
 });
 
-// vulnerable! ca send someone else's userId
 // need to add an authentication/authorization middleware to validate user with JWT
 route.delete("/vote/:ratingId", async (req, res) => {
     const { ratingId } = req.params;
@@ -74,6 +65,14 @@ route.delete("/vote/:ratingId", async (req, res) => {
 route.get("/recent/", async (req, res) => {
     const qty = req.query.qty ? req.query.qty : 6;
     const solutions = await SolutionsService.getRecentSolutions(qty);
+
+    if (solutions) return res.status(200).json(solutions);
+    return res.sendStatus(500);
+});
+
+route.get("/top", async (req, res) => {
+    const qty = req.query.qty ? req.query.qty : 6;
+    const solutions = await SolutionsService.getTopSolutions(qty);
 
     if (solutions) return res.status(200).json(solutions);
     return res.sendStatus(500);

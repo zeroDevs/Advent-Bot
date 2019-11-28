@@ -8,37 +8,8 @@ const SolutionSchema = new Schema({
     userid: Number,
     langName: String,
     avatarUrl: String,
-    Time: { type: Date, default: Date.now }
+    Time: { type: Date, default: Date.now },
+    averageRating: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model("Solution", SolutionSchema);
-
-// const mongoose = require("mongoose");
-
-// const SolutionsSchema = new mongoose.Schema({
-//     date: {
-//         type: Date,
-//         default: Date.now
-//     },
-//     url: {
-//         type: String
-//     },
-//     dayNumber: {
-//         type: Number
-//     },
-//     userName: {
-//         type: String
-//     },
-//     userid: {
-//         type: Number
-//     },
-//     langName: {
-//         type: String,
-//         default: "Javascript"
-//     },
-//     avatarUrl: {
-//         type: String
-//     }
-// });
-
-// module.exports = mongoose.model("snippets", SolutionsSchema);
