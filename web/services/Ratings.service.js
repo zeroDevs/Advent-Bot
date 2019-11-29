@@ -48,7 +48,7 @@ class RatingsService {
             newRating.save();
             return true;
         } catch (error) {
-            this.logger.error(`*createNewRating*: ${error}`);
+            console.error(`*createNewRating*: ${error}`);
         }
     }
 

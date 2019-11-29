@@ -28,11 +28,19 @@ module.exports = client => {
         .then(() => console.log("Connected to the database"));
     app.use(cors());
     app.use("/", indexRoute);
-    app.use("/api", apiRoute);
+    app.use(
+        "/api",
+        function(req, res, next) {
+            req.client_config = {
+                client: client
+            };
+            next();
+        },
+        apiRoute
+    );
     app.use("/solutions", solutionsRoute);
     app.use("/users", usersRoute);
     app.use("/stats", statsRoute);
-    // app.use("/auth", authRoute ) // Future Implementation
 
     app.listen(port, function() {
         console.log("Advent - Webserver is running on port:", port);
