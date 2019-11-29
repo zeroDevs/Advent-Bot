@@ -199,7 +199,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 if (err) console.error(err);
                                 if (done) {
                                     const stats = StatsService.getStats();
-                                    const recent = SolutionsService.getRecent(5);
+                                    const recent = SolutionsService.getRecentSolutions(5);
                                     const rSols = [];
                                     recent.map(r => rSols.push({ name: r.userName, url: r.url }));
                                     client.updateAdventEmbed({
