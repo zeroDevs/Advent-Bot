@@ -1,19 +1,10 @@
 const route = require("express").Router();
-const dateUtils = require("../utils/date.utils");
-const SolutionsService = require("../services/Solutions.service");
-const UsersService = require("../services/Users.service");
+const StatsService = require("../services/Stats.service");
 
 route.get("/", async (req, res) => {
-    const dayNumber = dateUtils.estDay();
-    const totalSolutions = await SolutionsService.getAllSolutions();
-    const todaysSolutions = await SolutionsService.getSolutionsForDay(dayNumber);
-    const totalUsers = await UsersService.allUsers();
+    const stats = await StatsService.getStats();
 
-    res.send({
-        totalSolutions: totalSolutions.length,
-        todaysSolutions: todaysSolutions.length,
-        totalUsers: totalUsers.length
-    });
+    res.send(stats);
 });
 
 module.exports = route;

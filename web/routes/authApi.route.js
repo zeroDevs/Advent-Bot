@@ -11,6 +11,9 @@ const tokens = require("../../configs/tokens.json");
 const User = require("../models/User.model");
 const Solution = require("../models/Solution.model");
 
+const StatsService = require("../services/Stats.service");
+const SolutionsService = require("../services/Solutions.service");
+
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
     const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
@@ -95,6 +98,8 @@ router.get(
 // router.post("/profile", );
 
 router.post("/submit", verifyToken, (req, res) => {
+    const client = req.client_config;
+
     //user point vars
     let localPoint = 0,
         localBadgePoint = 0,
@@ -225,6 +230,20 @@ router.post("/submit", verifyToken, (req, res) => {
                             },
                             (err, done) => {
                                 if (err) console.error(err);
+                                if (done) {
+                                    const stats = StatsService.getStats();
+                                    const recent = SolutionsService.getRecent(5);
+                                    const rSols = [];
+                                    recent.map(r => rSols.push({ name: r.userName, url: r.url }));
+                                    client.updateAdventEmbed({
+                                        stats: [
+                                            stats.totalSolutions,
+                                            stats.todaysSolutions,
+                                            stats.totalUsers
+                                        ],
+                                        recent: rsols
+                                    });
+                                }
                             }
                         );
 

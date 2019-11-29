@@ -52,7 +52,7 @@ class RatingsService {
             });
             return updateSolution;
         } catch (error) {
-            this.logger.error(`*createNewRating*: ${error}`);
+            console.error(`*createNewRating*: ${error}`);
         }
     }
 
