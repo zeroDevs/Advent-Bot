@@ -228,20 +228,22 @@ router.post("/submit", verifyToken, (req, res) => {
                                 langName: userData.langName,
                                 Time: estTime()
                             },
-                            (err, done) => {
+                            async (err, done) => {
                                 if (err) console.error(err);
                                 if (done) {
-                                    const stats = StatsService.getStats();
-                                    const recent = SolutionsService.getRecent(5);
+                                    const stats = await StatsService.getStats();
+                                    const recent = await SolutionsService.getRecentSolutions(6);
                                     const rSols = [];
-                                    recent.map(r => rSols.push({ name: r.userName, url: r.url }));
+                                    await recent.map(r =>
+                                        rSols.push({ name: r.userName, url: r.url })
+                                    );
                                     client.updateAdventEmbed({
                                         stats: [
                                             stats.totalSolutions,
                                             stats.todaysSolutions,
                                             stats.totalUsers
                                         ],
-                                        recent: rsols
+                                        recent: rSols
                                     });
                                 }
                             }
