@@ -43,42 +43,43 @@ router.get(
         const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${tokenJson.access_token}`,
-              "Content-Type": "application/x-www-form-urlencoded"
+                Authorization: `Bearer ${tokenJson.access_token}`,
+                "Content-Type": "application/x-www-form-urlencoded"
             }
         });
 
         const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
-        	method: "POST",
-        	headers: {
-            Authorization: `Bearer ${tokenJson.access_token}`,
-            "Content-Type": "application/x-www-form-urlencoded"
-          }
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${tokenJson.access_token}`,
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
         });
 
         const profileJson = await userProfile.json();
         const guildsJson = await userGuilds.json();
-        console.log(profileJson);
+        console.log("Profile Json", profileJson);
 
-        const avatar = profileJson.avatar !== null
-					? `https://cdn.discordapp.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
-					: `https://robohash.org/${profileJson.username}?set=set2`;
+        const avatar =
+            profileJson.avatar !== null
+                ? `https://cdn.discordapp.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
+                : `https://robohash.org/${profileJson.username}?set=set2`;
 
-				let guildCheck = checkGuilds(guildsJson);
+        let guildCheck = checkGuilds(guildsJson);
 
         //save user if doesn't exist
         User.findOne({ userid: profileJson.id }, (err, user) => {
             if (err) console.error(err);
             if (!user) {
-            	User.create({
-                username: profileJson.username,
-                userid: profileJson.id,
-                avatarUrl: avatar,
-                point: 0,
-                badgePoint: 0,
-                isZTM: guildCheck,
-                langArray: []
-	            });
+                User.create({
+                    username: profileJson.username,
+                    userid: profileJson.id,
+                    avatarUrl: avatar,
+                    point: 0,
+                    badgePoint: 0,
+                    isZTM: guildCheck,
+                    langArray: []
+                });
             }
         });
 
@@ -98,7 +99,7 @@ router.get(
 // router.post("/profile", );
 
 router.post("/submit", verifyToken, (req, res) => {
-    const client = req.client_config;
+    const client = req.client_config.client;
 
     //user point vars
     let localPoint = 0,
@@ -106,7 +107,7 @@ router.post("/submit", verifyToken, (req, res) => {
         isTokenValid = false;
 
     const userData = req.body;
-    console.log("UD:", userData);
+    console.log("UserData:", userData);
 
     //verify token
     jwt.verify(req.token, tokens.jwtToken, (err, dec) => {
@@ -150,7 +151,7 @@ router.post("/submit", verifyToken, (req, res) => {
             console.error("FIND USER ERROR:", error);
         }
         if (!userFound) {
-        	//obsolete but dont delete 
+            //obsolete but dont delete
             localPoint = 0;
             localBadgePoint = 0;
             User.create({
@@ -301,14 +302,14 @@ router.post("/submit", verifyToken, (req, res) => {
     });
 });
 
-const checkGuilds = (guildArray) => {
-	for(let i=0; i<guildArray.length; i++) {
-		if(guildArray[i].id === tokens.serverid) {
-			return true;
-		}
-	}
-	return false;
-}
+const checkGuilds = guildArray => {
+    for (let i = 0; i < guildArray.length; i++) {
+        if (guildArray[i].id === tokens.serverid) {
+            return true;
+        }
+    }
+    return false;
+};
 
 function verifyToken(req, res, next) {
     const bearerHeader = req.headers["authorization"];

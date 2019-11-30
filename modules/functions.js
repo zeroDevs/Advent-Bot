@@ -11,7 +11,6 @@ module.exports = client => {
         var dt = new Date();
         var offset = -300; //Timezone offset for EST in minutes.
         let d = new Date(dt.getTime() + offset * 60 * 1000);
-        console.log("DATE __ ", d.getDate());
         return d.getDate();
     };
 
@@ -64,10 +63,7 @@ module.exports = client => {
 
     // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
     process.on("uncaughtException", err => {
-        const errorMsg = err.stack.replace(
-            new RegExp(`${__dirname}/`, "g"),
-            "./"
-        );
+        const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
         console.log(`Uncaught Exception: ${errorMsg}`);
         // Always best practice to let the code crash on uncaught exceptions.
         // Because you should be catching them anyway.
