@@ -93,6 +93,7 @@ class RatingsService {
             return Boolean(rating && rating.length > 0);
         } catch (error) {
             this.logger.error(`*hasUserVotedOnSolution*: ${error}`);
+            return({error: error});
         }
     }
 
