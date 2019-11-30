@@ -30,11 +30,11 @@ route.get("/", async (req, res) => {
 });
 
 // add middleware so only logged in users can vote
-route.post("/vote", async (req, res) => {
+route.post("/vote", verifyToken, async (req, res) => {
     const { ...rating } = req.body;
 
     if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId)) {
-        return res.sendStatus(400);
+        return res.status(400).json({error: "cannot vote twice"});
     }
 
     // creates a new rating document, re-calculates the average ratings and updates the solution
@@ -43,7 +43,7 @@ route.post("/vote", async (req, res) => {
         { ...rating },
         SolutionsService.updateSolution
     );
-    return res.status(201).json(updatedSolution);
+    return res.status(201).json({updatedSolution, error: "vote successful"});
 });
 
 // need to add an authentication/authorization middleware to validate user with JWT
@@ -77,5 +77,21 @@ route.get("/top", async (req, res) => {
     if (solutions) return res.status(200).json(solutions);
     return res.sendStatus(500);
 });
+
+function verifyToken(req, res, next) {
+    const bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== "undefined") {
+        const bearer = bearerHeader.replace(/^JWT\s/, ``).split(" ");
+        const bearerToken = bearer[1].replace(/^"(.*)"$/, "$1");
+        req.token = bearerToken;
+        next();
+    } else {
+        res.status(403).json({
+            error: "Invalid token",
+            isSuccessful: false,
+            data: {}
+        });
+    }
+}
 
 module.exports = route;
