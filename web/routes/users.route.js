@@ -16,7 +16,7 @@ route.get("/", (req, res) => {
         if (err) throw err;
         var dbo = db.db("AOC");
         dbo.collection("users")
-            .find({})
+            .find({langArray: {$exists: true, $not: {$size: 0}}})
             .toArray(function(err, result) {
                 if (err) throw err;
                 res.json(result);
