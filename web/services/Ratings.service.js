@@ -75,9 +75,10 @@ class RatingsService {
 
     calculateAverage(ratings) {
         try {
-            const sum = ratings.reduce((total, rating) => total + rating.ratingScore, 0);
-            const count = ratings.length;
-            return sum / count;
+          const sum = ratings.reduce((total, rating) => total + rating.ratingScore, 0);
+          const count = ratings.length;
+          console.log(sum/count);
+          return sum / count;
         } catch (error) {
             this.logger.error(`*calculateAverage*: ${error}`);
         }
