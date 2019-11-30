@@ -5,7 +5,7 @@ const ObjectId = Schema.Types.ObjectId;
 const RatingSchema = new Schema(
     {
         solutionId: { type: ObjectId, ref: "Solution" },
-        userId: { type: ObjectId, ref: "User" },
+        userId: { type: Number, ref: "User" },
         ratingScore: Number
     },
     { timestamps: true }
