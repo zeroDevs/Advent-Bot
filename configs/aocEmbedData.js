@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const moment = require("moment");
 const day = new Date().getDate();
 
 exports.aoc = blank => {
@@ -16,7 +17,7 @@ exports.aoc = blank => {
             ],
             [
                 ":calendar:  Todays Challenge",
-                `Check it out [here](https://adventofcode.com/2018/${day})`,
+                `Check it out [here](https://adventofcode.com/2019/${day})`,
                 true
             ],
             [
@@ -40,24 +41,12 @@ exports.aoc = blank => {
                 " You can submit your solution over [here](https://aoc.zerotomastery.io/submit)"
             ],
             [blank, blank],
-            [
-                ":bar_chart:   Statistics  :bar_chart: ",
-                "=-=-=-=-=-=-=-=-=",
-                false
-            ],
-            [
-                ":arrows_counterclockwise: 355 Solutions",
-                "Total Solutions",
-                true
-            ],
+            [":bar_chart:   Statistics  :bar_chart: ", "=-=-=-=-=-=-=-=-=", false],
+            [":arrows_counterclockwise: 355 Solutions", "Total Solutions", true],
             [":calendar_spiral: 55 Today", "Todays Solutions", true],
             [":family_wwb:  77 Paticipants", "Total ZTM'ers", true],
             [blank, blank],
-            [
-                ":new:    Recent Submissions    :new:",
-                "=-=-=-=-=-=-=-=-=-=-==-=-=-=",
-                false
-            ],
+            [":new:    Recent Submissions    :new:", "=-=-=-=-=-=-=-=-=-=-==-=-=-=", false],
             ["Craig Trent", "[View Solution](https://test.com)", true],
             ["Jim Bean", "[View Solution](https://test.com)", true],
             ["Tom Davids", "[View Solution](https://test.com)", true],
@@ -65,6 +54,6 @@ exports.aoc = blank => {
             ["Martha Smith", "[View Solution](https://test.com)", true],
             ["Chloe Stuart", "[View Solution](https://test.com)", true]
         ],
-        footer: ["Last updated: never"]
+        footer: [`Last Updated: ${moment().format("MMM Do YYYY, h:mm:ss a")}`]
     };
 };
