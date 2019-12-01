@@ -3,15 +3,11 @@ const Discord = require("discord.js");
 exports.run = async (client, message, args) => {
     // eslint-disable-line no-unused-vars
 
-    const aocChannel = client.channels.find("name", "advent-of-code");
-    const authedUser = message.member.roles.some(r => ["Admin"].includes(r.name));
-
-    if (!authedUser) {
-        message.reply("Unauthed!");
+    if (message !== false && !message.member.roles.some(r => ["Admin"].includes(r.name))) {
         return;
     }
 
-    if (args[0] === "init") client.initAdventEmbed(client.channels.find("name", "advent-of-code"));
+    if (args[0] === "init") client.initAdventEmbed();
     else {
         const StatsService = require("../../web/services/Stats.service");
         const SolutionsService = require("../../web/services/Solutions.service");
