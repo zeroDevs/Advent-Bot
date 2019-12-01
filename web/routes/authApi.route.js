@@ -67,12 +67,12 @@ router.get(
 				let guildCheck = checkGuilds(guildsJson);
 
         //save user if doesn't exist
-        User.findOne({ userid: profileJson.id }, (err, user) => {
+        User.findOne({ userid: profileJson.id.toString() }, (err, user) => {
             if (err) console.error(err);
             if (!user) {
             	User.create({
                 username: profileJson.username,
-                userid: profileJson.id,
+                userid: profileJson.id.toString(),
                 avatarUrl: avatar,
                 point: 0,
                 badgePoint: 0,
@@ -128,8 +128,7 @@ router.post("/submit", verifyToken, (req, res) => {
     let submittedDate = new Date(userData.date);
     console.log(typeof submittedDate);
 
-    if (
-        submittedDate.getDate() > estDay() ||
+    if (submittedDate.getDate() > estDay() ||
         submittedDate.getMonth() + 1 != 12 ||
         submittedDate.getFullYear() != 2019
     ) {
@@ -145,7 +144,7 @@ router.post("/submit", verifyToken, (req, res) => {
     //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
     //check if user exist
-    User.findOne({ userid: userData.userId }, (err, userFound) => {
+    User.findOne({ userid: userData.userId.toString() }, (err, userFound) => {
         if (err) {
             console.error("FIND USER ERROR:", error);
         }
@@ -155,7 +154,7 @@ router.post("/submit", verifyToken, (req, res) => {
             localBadgePoint = 0;
             User.create({
                 username: userData.userName,
-                userid: userData.userId,
+                userid: userData.userId.toString(),
                 avatarUrl: userData.avatarUrl,
                 point: localPoint,
                 badgePoint: localBadgePoint,
@@ -177,7 +176,7 @@ router.post("/submit", verifyToken, (req, res) => {
                 Solution.find(
                     {
                         dayNumber: submittedDate.getDate(),
-                        userid: userData.userId
+                        userid: userData.userId.toString()
                     },
                     (err, sol) => {
                         if (err) console.error(err);
@@ -223,7 +222,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                 url: userData.url,
                                 dayNumber: submittedDate.getDate(),
                                 userName: userData.userName,
-                                userid: userData.userId,
+                                userid: userData.userId.toString(),
                                 avatarUrl: userData.avatarUrl,
                                 langName: userData.langName,
                                 Time: estTime()
@@ -251,7 +250,7 @@ router.post("/submit", verifyToken, (req, res) => {
 
                         //update user points
                         User.findOneAndUpdate(
-                            { userid: userData.userId },
+                            { userid: userData.userId.toString() },
                             {
                                 $inc: {
                                     point: localPoint,
@@ -270,7 +269,7 @@ router.post("/submit", verifyToken, (req, res) => {
                         );
 
                         //add language used to array in user model
-                        User.findOne({ userid: userData.userId }, (err, user) => {
+                        User.findOne({ userid: userData.userId.toString() }, (err, user) => {
                             if (err) console.error(err);
                             if (user) {
                                 console.log("FINDONE USER:", user);
@@ -281,7 +280,7 @@ router.post("/submit", verifyToken, (req, res) => {
                                     user.langArray.push(userData.langName.toLowerCase());
                                     console.log(user.langArray);
                                     User.findOneAndUpdate(
-                                        { userid: userData.userId },
+                                        { userid: userData.userId.toString() },
                                         {
                                             langArray: user.langArray
                                         },
