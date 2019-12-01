@@ -48,16 +48,16 @@ router.get(
             }
         });
 
-        const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${tokenJson.access_token}`,
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        });
+        //const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
+            //method: "POST",
+            //headers: {
+                //Authorization: `Bearer ${tokenJson.access_token}`,
+                //"Content-Type": "application/x-www-form-urlencoded"
+            //}
+        //});
 
         const profileJson = await userProfile.json();
-        const guildsJson = await userGuilds.json();
+        //const guildsJson = await userGuilds.json();
         console.log("Profile Json", profileJson);
 
         const avatar =
@@ -65,7 +65,7 @@ router.get(
                 ? `https://cdn.discordapp.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
                 : `https://robohash.org/${profileJson.username}?set=set2`;
 
-        let guildCheck = checkGuilds(guildsJson);
+        //let guildCheck = checkGuilds(guildsJson);
 
         //save user if doesn't exist
         User.findOne({ userid: profileJson.id.toString() }, (err, user) => {
@@ -77,7 +77,7 @@ router.get(
                 avatarUrl: avatar,
                 point: 0,
                 badgePoint: 0,
-                isZTM: guildCheck,
+                isZTM: false,
                 langArray: []
 	            });
             }
@@ -85,7 +85,7 @@ router.get(
 
         //TODO: hash discord token with bcrypt
         jwt.sign(
-            { userProfile: profileJson, userGuilds: guildsJson },
+            { userProfile: profileJson, userGuilds: {} },
             tokens.jwtToken,
             { expiresIn: "7d" },
             (err, token) => {
