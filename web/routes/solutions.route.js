@@ -32,10 +32,15 @@ route.get("/", async (req, res) => {
 // add middleware so only logged in users can vote
 route.post("/vote", verifyToken, async (req, res) => {
     const { ...rating } = req.body;
-
+    console.log(RatingsService.isOwnRating({ ...rating }, rating.userId))
     if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId)) {
-        return res.status(400).json({error: "cannot vote twice"});
+        return res.status(400).json({error: "cannot vote twice", isSuccessful: false});
     }
+    if(RatingsService.isOwnRating({ ...rating }, rating.userId)) {
+        return res.status(400).json({error: "cannot vote your own solution", isSuccessful: false});
+    }
+
+
 
     // creates a new rating document, re-calculates the average ratings and updates the solution
     // returns the updated solution
@@ -43,7 +48,7 @@ route.post("/vote", verifyToken, async (req, res) => {
         { ...rating },
         SolutionsService.updateSolution
     );
-    return res.status(201).json({updatedSolution, error: "vote successful"});
+    return res.status(201).json({updatedSolution, error: "vote successful", isSuccessful: true});
 });
 
 // need to add an authentication/authorization middleware to validate user with JWT
