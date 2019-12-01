@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
     username: String, //username format -> username#discrimanator
-    userid: Number,
+    userid: String,
     point: Number,
     badgePoint: Number,
     avatarUrl: String,
