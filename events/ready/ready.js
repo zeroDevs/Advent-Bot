@@ -14,6 +14,7 @@ module.exports = async client => {
     try {
         let link = await client.generateInvite(["ADMINISTRATOR"]);
         console.log(link);
+        client.statsCron();
     } catch (e) {
         console.log(e.stack);
     }

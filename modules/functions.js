@@ -1,4 +1,9 @@
+const moment = require("moment");
+
 module.exports = client => {
+    client.moment = () => {
+        return moment().format("MMM Do YYYY, h:mm:ss a");
+    };
     // EST TIMEZONE
     client.timeEST = () => {
         //  time convertion to EST
