@@ -7,7 +7,7 @@ const StatsService = require("../web/services/Stats.service");
 module.exports = client => {
     client.initAdventEmbed = async () => {
         const stats = await StatsService.getStats();
-        const blank = client.emojis.get(`587088664522391593`);
+        const blank = client.emojis.get(`650510933940240405`);
         console.log(111, stats);
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
         const channelAoc = client.channels.find("name", "recapoftheday");
@@ -15,7 +15,7 @@ module.exports = client => {
     };
 
     client.updateAdventEmbed = async what => {
-        const blank = client.emojis.get(`587088664522391593`);
+        const blank = client.emojis.get(`650510933940240405`);
         const stats = await StatsService.getStats();
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
         const channelAoc = client.channels.find("name", "recapoftheday");
