@@ -134,7 +134,7 @@ router.post("/submit", verifyToken, (req, res) => {
         submittedDate.getMonth() + 1 != 12 ||
         submittedDate.getFullYear() != 2019
     ) {
-        console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay);
+        console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay());
         res.status(400).json({
             error: "Invalid date",
             isSuccessful: false,
