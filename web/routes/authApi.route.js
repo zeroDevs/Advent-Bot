@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const btoa = require("btoa");
 const fetch = require("node-fetch");
+const requestN = require('request');
 
 const { catchAsync } = require("../utils");
 const { estDay, estTime } = require("../utils/date.utils");
@@ -129,19 +130,39 @@ router.post("/submit", verifyToken, (req, res) => {
     let submittedDate = new Date(userData.date);
     console.log(typeof submittedDate);
 
-    // if (
-    //     submittedDate.getDate() > estDay() ||
-    //     submittedDate.getMonth() + 1 != 12 ||
-    //     submittedDate.getFullYear() != 2019
-    // ) {
-    //     console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay());
-    //     res.status(400).json({
-    //         error: "Invalid date",
-    //         isSuccessful: false,
-    //         data: {}
-    //     });
-    //     return;
-    // }
+    if (
+        submittedDate.getDate() > estDay() ||
+        submittedDate.getMonth() + 1 != 12 ||
+        submittedDate.getFullYear() != 2019
+    ) {
+        console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay());
+
+        //send webhook if failed
+        requestN.post({
+          headers: {'content-type': 'application/json'},
+          url: tokens.log_webhook,
+          body: {
+              "username": "Logger",
+              "avatar_url": "https://purepng.com/public/uploads/large/purepng.com-robotrobotprogrammableautomatonelectronicscyborg-1701528371687rcmuo.png",
+              "content": "**Date Error**",
+              "embeds": [
+                {
+                  "title": `Username: ${userData.userName} \n UserId: ${userData.userId}`,
+                  "color": "14177041",
+                  "description": `UrlSubmitted: ${userData.url} \n Est: ${estDay()} :: SubDay: ${submittedDate.getDate()}`
+                }
+              ]
+            },
+          json: true
+        });
+
+        res.status(400).json({
+            error: "Invalid date",
+            isSuccessful: false,
+            data: {}
+        });
+        return;
+    }
 
     //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
