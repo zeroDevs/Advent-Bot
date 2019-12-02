@@ -129,19 +129,19 @@ router.post("/submit", verifyToken, (req, res) => {
     let submittedDate = new Date(userData.date);
     console.log(typeof submittedDate);
 
-    if (
-        submittedDate.getDate() > estDay() ||
-        submittedDate.getMonth() + 1 != 12 ||
-        submittedDate.getFullYear() != 2019
-    ) {
-        console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay());
-        res.status(400).json({
-            error: "Invalid date",
-            isSuccessful: false,
-            data: {}
-        });
-        return;
-    }
+    // if (
+    //     submittedDate.getDate() > estDay() ||
+    //     submittedDate.getMonth() + 1 != 12 ||
+    //     submittedDate.getFullYear() != 2019
+    // ) {
+    //     console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay());
+    //     res.status(400).json({
+    //         error: "Invalid date",
+    //         isSuccessful: false,
+    //         data: {}
+    //     });
+    //     return;
+    // }
 
     //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
