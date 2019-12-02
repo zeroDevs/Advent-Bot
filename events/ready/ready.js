@@ -27,7 +27,7 @@ module.exports = async client => {
                 thumbnail:
                     "https://cdn.discordapp.com/attachments/650478169157271583/650514804683046912/Untitled-2.png"
             },
-            client.channels.find("name", "bot-log")
+            client.channels.find("id", "455756883140018176")
         );
     } catch (e) {
         console.log(e.stack);

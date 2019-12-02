@@ -13,7 +13,7 @@ class StatsService {
             const dayNumber = dateUtils.estDay();
             const totalSolutions = await SolutionsService.getAllSolutions();
             const todaysSolutions = await SolutionsService.getSolutionsForDay(dayNumber);
-            const totalUsers = await UsersService.allUsers();
+            const totalUsers = await UsersService.activeUsers();
             return {
                 totalSolutions: totalSolutions.length,
                 todaysSolutions: todaysSolutions.length,

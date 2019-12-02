@@ -51,6 +51,15 @@ class UsersService {
             this.logger.error(`*deleteUser*: ${error}`);
         }
     }
+
+    async activeUsers(username) {
+        try {
+            const user = User.find({ point: { $gt: 0 } }).exec();
+            return user;
+        } catch (error) {
+            this.logger.error(`*activeUsers*: ${error}`);
+        }
+    }
 }
 
 module.exports = new UsersService();
