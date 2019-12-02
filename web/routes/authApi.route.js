@@ -48,13 +48,13 @@ router.get(
             }
         });
 
-        //const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
-            //method: "POST",
-            //headers: {
-                //Authorization: `Bearer ${tokenJson.access_token}`,
-                //"Content-Type": "application/x-www-form-urlencoded"
-            //}
-        //});
+        const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${tokenJson.access_token}`,
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        }).then(guilds => checkGuilds(guilds.json()));
 
         const profileJson = await userProfile.json();
         //const guildsJson = await userGuilds.json();
@@ -71,16 +71,16 @@ router.get(
         User.findOne({ userid: profileJson.id.toString() }, (err, user) => {
             if (err) console.error(err);
             if (!user) {
-            	User.create({
-                username: profileJson.username,
-                userid: profileJson.id.toString(),
-                avatarUrl: avatar,
-                point: 0,
-                badgePoint: 0,
-                isZTM: false,
-                langArray: []
-	            });
-            }
+                User.create({
+                    username: profileJson.username,
+                    userid: profileJson.id.toString(),
+                    avatarUrl: avatar,
+                    point: 0,
+                    badgePoint: 0,
+                    isZTM: false,
+                    langArray: []
+                });
+            } else console.log(userGuilds);
         });
 
         //TODO: hash discord token with bcrypt
@@ -129,11 +129,12 @@ router.post("/submit", verifyToken, (req, res) => {
     let submittedDate = new Date(userData.date);
     console.log(typeof submittedDate);
 
-    if (submittedDate.getDate() > estDay() ||
+    if (
+        submittedDate.getDate() > estDay() ||
         submittedDate.getMonth() + 1 != 12 ||
         submittedDate.getFullYear() != 2019
     ) {
-        console.log("INVALID DATE");
+        console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay);
         res.status(400).json({
             error: "Invalid date",
             isSuccessful: false,
