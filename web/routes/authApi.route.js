@@ -8,12 +8,28 @@ const requestN = require('request');
 
 const { catchAsync } = require("../utils");
 const { estDay, estTime } = require("../utils/date.utils");
-const tokens = require("../../configs/tokens.json");
+const { submissionWebhook, errorWebhook } = require("../../web/utils/webhook");
+
 const User = require("../models/User.model");
 const Solution = require("../models/Solution.model");
 
 const StatsService = require("../services/Stats.service");
 const SolutionsService = require("../services/Solutions.service");
+
+//     WEBHOOK EXAMPLES
+//        submissionWebhook({
+//            username: "Matt",
+//            url: "https://1111.com",
+//            day: 6,
+//            thumb: "https://cdn.discordapp.com/embed/avatars/0.png",
+//            lang: "Javascript",
+//            time: estDate()
+//        });
+
+//        errorWebhook({
+//            errorTitle: "INVALID DATE",
+//            errorDesc: "BLAH BLAH BLH BLAH"
+//        });
 
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
@@ -271,6 +287,16 @@ router.post("/submit", verifyToken, (req, res) => {
                             }
                         );
 
+                        // Create a embed in #submissions
+                        submissionWebhook({
+                            username: userData.userName,
+                            url: userData.url,
+                            day: submittedDate.getDate(),
+                            thumb: userData.avatarUrl,
+                            lang: userData.langName,
+                            time: estTime()
+                        });
+
                         //update user points
                         User.findOneAndUpdate(
                             { userid: userData.userId.toString() },
@@ -347,5 +373,34 @@ function verifyToken(req, res, next) {
         });
     }
 }
+
+webhook = ({ type, username, userImg, url, day, errorTitle, errorDesc }) => {
+    data = {};
+    // Sends a webhook to the submission channel
+    if (type === "submitted") {
+        data = {
+            url: tokens.successWebhook,
+            title: "New AoC Submission!",
+            desc: `Checkout **${username}'s** [submission](${url}) for day ${day}`,
+            color: 8392720,
+            field: [],
+            thumb: userImg
+        };
+    }
+
+    // Sends a webhook to the dev channel
+    if (type === "error") {
+        data = {
+            url: tokens.errorWebhook,
+            title: "An Error was detected",
+            desc: `${errorTitle}\n\`\`\` ${errorDesc.slice(0, 1023)} \`\`\` `,
+            color: 16740352,
+            field: [],
+            thumb: ""
+        };
+    }
+
+    sendWebhook({ data });
+};
 
 module.exports = router;
