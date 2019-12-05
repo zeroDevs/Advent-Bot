@@ -19,7 +19,7 @@ class StatsService {
                 totalSolutions: totalSolutions.length,
                 todaysSolutions: todaysSolutions.length,
                 totalUsers: totalUsers.length,
-                authedUsers: authedUsers
+                authedUsers: authedUsers.length
             };
         } catch (error) {
             this.logger.error(`*getStats*: ${error}`);
