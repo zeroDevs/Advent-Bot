@@ -16,13 +16,15 @@ route.get("/", async (req, res) => {
         ? await SolutionsService.getSolutionsForDay(day)
         : await SolutionsService.getAllSolutions();
 
-    const ratings = await RatingsService.getAllRatings();
+    // const ratings = await RatingsService.getAllRatings();
 
-    const data = solutions.map(solution => {
-        const temp = { ...solution._doc };
-        temp.ratings = ratings.filter(rating => String(rating._doc.solutionId) == String(temp._id));
-        return temp;
-    });
+    // const data = solutions.map(solution => {
+    //     const temp = { ...solution._doc };
+    //     temp.ratings = ratings.filter(rating => String(rating._doc.solutionId) == String(temp._id));
+    //     return temp;
+    // });
+
+    data = solutions;
 
     if (data) return res.status(200).json(data);
 
@@ -32,15 +34,15 @@ route.get("/", async (req, res) => {
 // add middleware so only logged in users can vote
 route.post("/vote", verifyToken, async (req, res) => {
     const { ...rating } = req.body;
-    console.log(RatingsService.isOwnRating({ ...rating }, rating.userId))
+    console.log(RatingsService.isOwnRating({ ...rating }, rating.userId));
     if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId)) {
-        return res.status(400).json({error: "cannot vote twice", isSuccessful: false});
+        return res.status(400).json({ error: "cannot vote twice", isSuccessful: false });
     }
-    if(RatingsService.isOwnRating({ ...rating }, rating.userId)) {
-        return res.status(400).json({error: "cannot vote your own solution", isSuccessful: false});
+    if (RatingsService.isOwnRating({ ...rating }, rating.userId)) {
+        return res
+            .status(400)
+            .json({ error: "cannot vote your own solution", isSuccessful: false });
     }
-
-
 
     // creates a new rating document, re-calculates the average ratings and updates the solution
     // returns the updated solution
@@ -48,7 +50,7 @@ route.post("/vote", verifyToken, async (req, res) => {
         { ...rating },
         SolutionsService.updateSolution
     );
-    return res.status(201).json({updatedSolution, error: "vote successful", isSuccessful: true});
+    return res.status(201).json({ updatedSolution, error: "vote successful", isSuccessful: true });
 });
 
 // need to add an authentication/authorization middleware to validate user with JWT

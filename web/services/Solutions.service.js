@@ -17,7 +17,7 @@ class SolutionsService {
 
     async getAllSolutions() {
         try {
-            const data = await Solution.find().exec();
+            const data = await Solution.find().sort({ Time: -1 });
             return data;
         } catch (error) {
             this.logger.error(`*getAllSolutions*: ${error}`);
