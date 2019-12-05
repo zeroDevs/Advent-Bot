@@ -14,10 +14,12 @@ class StatsService {
             const totalSolutions = await SolutionsService.getAllSolutions();
             const todaysSolutions = await SolutionsService.getSolutionsForDay(dayNumber);
             const totalUsers = await UsersService.activeUsers();
+            const authedUsers = await UsersService.allUsers();
             return {
                 totalSolutions: totalSolutions.length,
                 todaysSolutions: todaysSolutions.length,
-                totalUsers: totalUsers.length
+                totalUsers: totalUsers.length,
+                authedUsers: authedUsers
             };
         } catch (error) {
             this.logger.error(`*getStats*: ${error}`);
