@@ -4,15 +4,32 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const btoa = require("btoa");
 const fetch = require("node-fetch");
+const requestN = require("request");
 
 const { catchAsync } = require("../utils");
 const { estDay, estTime } = require("../utils/date.utils");
-const tokens = require("../../configs/tokens.json");
+const { submissionWebhook, errorWebhook } = require("../../web/utils/webhook");
+
 const User = require("../models/User.model");
 const Solution = require("../models/Solution.model");
 
 const StatsService = require("../services/Stats.service");
 const SolutionsService = require("../services/Solutions.service");
+
+//     WEBHOOK EXAMPLES
+//        submissionWebhook({
+//            username: "Matt",
+//            url: "https://1111.com",
+//            day: 6,
+//            thumb: "https://cdn.discordapp.com/embed/avatars/0.png",
+//            lang: "Javascript",
+//            time: estDate()
+//        });
+
+//        errorWebhook({
+//            errorTitle: "INVALID DATE",
+//            errorDesc: "BLAH BLAH BLH BLAH"
+//        });
 
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
@@ -116,6 +133,10 @@ router.post("/submit", verifyToken, (req, res) => {
     });
 
     if (!isTokenValid) {
+        errorWebhook({
+            errorTitle: "INVALID TOKEN",
+            errorDesc: `req.token ${req.token}, tokens.jwtToken ${tokens.jwtToken}`
+        });
         console.log("INVALID TOKEN");
         return res.status(400).json({
             error: "Invalid Token",
@@ -126,28 +147,50 @@ router.post("/submit", verifyToken, (req, res) => {
 
     //extract date from request
     // convert epoch to human-readable form
-    let submittedDate = new Date(userData.date);
-    console.log(typeof submittedDate);
+    let submittedDate = userData.date;
 
-    // if (
-    //     submittedDate.getDate() > estDay() ||
-    //     submittedDate.getMonth() + 1 != 12 ||
-    //     submittedDate.getFullYear() != 2019
-    // ) {
-    //     console.log("INVALID DATE", submittedDate, submittedDate.getDate(), estDay());
-    //     res.status(400).json({
-    //         error: "Invalid date",
-    //         isSuccessful: false,
-    //         data: {}
-    //     });
-    //     return;
-    // }
+    if (submittedDate > estDay()) {
+        console.log("INVALID DATE", submittedDate, submittedDate, estDay());
+
+        //send webhook if failed
+        requestN.post({
+            headers: { "content-type": "application/json" },
+            url: tokens.log_webhook,
+            body: {
+                username: "Logger",
+                avatar_url:
+                    "https://purepng.com/public/uploads/large/purepng.com-robotrobotprogrammableautomatonelectronicscyborg-1701528371687rcmuo.png",
+                content: "**Date Error**",
+                embeds: [
+                    {
+                        title: `Username: ${userData.userName} \n UserId: ${userData.userId}`,
+                        color: "14177041",
+                        description: `UrlSubmitted: ${
+                            userData.url
+                        } \n Est: ${estDay()} :: SubDay: ${submittedDate}`
+                    }
+                ]
+            },
+            json: true
+        });
+
+        res.status(400).json({
+            error: "Invalid date",
+            isSuccessful: false,
+            data: {}
+        });
+        return;
+    }
 
     //data required -> username(with discriminator), id, url, date, langName and a token(for user verification)
 
     //check if user exist
     User.findOne({ userid: userData.userId.toString() }, (err, userFound) => {
         if (err) {
+            errorWebhook({
+                errorTitle: "check if user exist",
+                errorDesc: err
+            });
             console.error("FIND USER ERROR:", error);
         }
         if (!userFound) {
@@ -165,7 +208,12 @@ router.post("/submit", verifyToken, (req, res) => {
         }
         //check if url already exist
         Solution.findOne({ url: userData.url }, (err, urlExist) => {
-            if (err) console.error(err);
+            if (err) {
+                errorWebhook({
+                    errorTitle: "check if url already exist",
+                    errorDesc: err
+                });
+            }
 
             if (urlExist) {
                 res.status(400).json({
@@ -177,7 +225,7 @@ router.post("/submit", verifyToken, (req, res) => {
             } else {
                 Solution.find(
                     {
-                        dayNumber: submittedDate.getDate(),
+                        dayNumber: submittedDate,
                         userid: userData.userId.toString()
                     },
                     (err, sol) => {
@@ -188,15 +236,15 @@ router.post("/submit", verifyToken, (req, res) => {
                                 console.log(sol.length);
                                 for (let i = 0; i < sol.length; i++) {
                                     if (userData.langName === sol[i].langName) {
+                                        errorWebhook({
+                                            errorTitle: "URL EXISTS",
+                                            errorDesc: `${userData.userName} tried to submit a solution for day ${submittedDate} in ${userData.langName} that has already been submitted.`
+                                        });
                                         console.error(
-                                            `Solution for day ${submittedDate.getDate()} in ${
-                                                userData.langName
-                                            } is already submitted.`
+                                            `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`
                                         );
                                         res.status(400).json({
-                                            error: `Solution for day ${submittedDate.getDate()} in ${
-                                                userData.langName
-                                            } is already submitted.`,
+                                            error: `Solution for day ${submittedDate} in ${userData.langName} is already submitted.`,
                                             isSuccessful: false,
                                             data: {}
                                         });
@@ -208,10 +256,10 @@ router.post("/submit", verifyToken, (req, res) => {
                                 localBadgePoint = 1;
                             } else {
                                 //user hasn't submitted this day's solution
-                                if (submittedDate.getDate() == estDay()) {
+                                if (submittedDate == estDay()) {
                                     //today's solution --> point+2
                                     localPoint = 2;
-                                } else if (submittedDate.getDate() < estDay()) {
+                                } else if (submittedDate < estDay()) {
                                     //previous day's solution
                                     localPoint = 1;
                                 }
@@ -222,7 +270,7 @@ router.post("/submit", verifyToken, (req, res) => {
                         Solution.create(
                             {
                                 url: userData.url,
-                                dayNumber: submittedDate.getDate(),
+                                dayNumber: submittedDate,
                                 userName: userData.userName,
                                 userid: userData.userId.toString(),
                                 avatarUrl: userData.avatarUrl,
@@ -230,7 +278,12 @@ router.post("/submit", verifyToken, (req, res) => {
                                 Time: estTime()
                             },
                             async (err, done) => {
-                                if (err) console.error(err);
+                                if (err) {
+                                    errorWebhook({
+                                        errorTitle: "Adding Solution To Database",
+                                        errorDesc: err
+                                    });
+                                }
                                 if (done) {
                                     const stats = await StatsService.getStats();
                                     const recent = await SolutionsService.getRecentSolutions(6);
@@ -245,6 +298,16 @@ router.post("/submit", verifyToken, (req, res) => {
                                             stats.totalUsers
                                         ],
                                         recent: rSols
+                                    });
+
+                                    // Create a embed in #submissions
+                                    submissionWebhook({
+                                        username: userData.userName,
+                                        url: userData.url,
+                                        day: submittedDate,
+                                        thumb: userData.avatarUrl,
+                                        lang: userData.langName,
+                                        time: estTime()
                                     });
                                 }
                             }
@@ -261,7 +324,12 @@ router.post("/submit", verifyToken, (req, res) => {
                             },
                             { upsert: true },
                             (err, doc) => {
-                                if (err) console.error(err);
+                                if (err) {
+                                    errorWebhook({
+                                        errorTitle: "Updating User Points",
+                                        errorDesc: err
+                                    });
+                                }
                                 return res.status(200).json({
                                     error: null,
                                     isSuccessful: true,
@@ -272,7 +340,12 @@ router.post("/submit", verifyToken, (req, res) => {
 
                         //add language used to array in user model
                         User.findOne({ userid: userData.userId.toString() }, (err, user) => {
-                            if (err) console.error(err);
+                            if (err) {
+                                errorWebhook({
+                                    errorTitle: "add language used to array in user model",
+                                    errorDesc: err
+                                });
+                            }
                             if (user) {
                                 console.log("FINDONE USER:", user);
                                 if (user.langArray.includes(userData.langName.toLowerCase())) {
@@ -326,5 +399,34 @@ function verifyToken(req, res, next) {
         });
     }
 }
+
+webhook = ({ type, username, userImg, url, day, errorTitle, errorDesc }) => {
+    data = {};
+    // Sends a webhook to the submission channel
+    if (type === "submitted") {
+        data = {
+            url: tokens.successWebhook,
+            title: "New AoC Submission!",
+            desc: `Checkout **${username}'s** [submission](${url}) for day ${day}`,
+            color: 8392720,
+            field: [],
+            thumb: userImg
+        };
+    }
+
+    // Sends a webhook to the dev channel
+    if (type === "error") {
+        data = {
+            url: tokens.errorWebhook,
+            title: "An Error was detected",
+            desc: `${errorTitle}\n\`\`\` ${errorDesc.slice(0, 1023)} \`\`\` `,
+            color: 16740352,
+            field: [],
+            thumb: ""
+        };
+    }
+
+    sendWebhook({ data });
+};
 
 module.exports = router;
