@@ -10,6 +10,9 @@ const { catchAsync } = require("../utils");
 const { estDay, estTime } = require("../utils/date.utils");
 const { submissionWebhook, errorWebhook } = require("../../web/utils/webhook");
 
+//tokens
+const tokens = require("../../configs/tokens.json");
+
 const User = require("../models/User.model");
 const Solution = require("../models/Solution.model");
 
