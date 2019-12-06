@@ -1,20 +1,20 @@
 const Discord = require("discord.js");
-const day = new Date().getDate();
 const moment = require("moment");
 const embedData = require("../configs/aocEmbedData");
 const StatsService = require("../web/services/Stats.service");
 
 module.exports = client => {
     client.initAdventEmbed = async () => {
+        const day = new Date().getDate();
         const stats = await StatsService.getStats();
         const blank = client.emojis.get(`650510933940240405`);
-        console.log(111, stats);
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
         const channelAoc = client.channels.find("name", "recapoftheday");
         client.sendEmbed(client, data, channelAoc);
     };
 
     client.updateAdventEmbed = async what => {
+        const day = new Date().getDate();
         const blank = client.emojis.get(`650510933940240405`);
         const stats = await StatsService.getStats();
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
