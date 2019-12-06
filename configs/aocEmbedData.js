@@ -7,7 +7,6 @@ exports.aoc = (blank, day, client, stats) => {
         `\n:calendar:  [**Todays Challenge**](https://adventofcode.com/2019/day/${day})${spacer}:link: [**Submit Solution**](https://aoc.zerotomastery.io/submit)\n${blank}`,
         `\n:eye: [**View Solutions**](https://aoc.zerotomastery.io/solutions)${spacer}\u2002\u2002:medal: [**View Leaderboard**](https://aoc.zerotomastery.io/leaderboard)`
     ];
-    console.log(stats);
     return {
         title: `Advent of Code - ${day} Dec 2019 Recap`,
         url: "https://aoc.zerotomastery.io",
