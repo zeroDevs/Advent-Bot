@@ -15,11 +15,26 @@ class StatsService {
             const todaysSolutions = await SolutionsService.getSolutionsForDay(dayNumber);
             const totalUsers = await UsersService.activeUsers();
             const authedUsers = await UsersService.allUsers();
+            const langStats = {
+                Javascript: 0,
+                Python: 0,
+                "C#": 0,
+                Java: 0,
+                Go: 0,
+                Other: 0,
+                "C++": 0,
+                PHP: 0,
+                Ruby: 0
+            };
+            totalSolutions.map(sol => {
+                langStats[sol.langName]++;
+            });
             return {
                 totalSolutions: totalSolutions.length,
                 todaysSolutions: todaysSolutions.length,
                 totalUsers: totalUsers.length,
-                authedUsers: authedUsers.length
+                authedUsers: authedUsers.length,
+                langStats: langStats
             };
         } catch (error) {
             this.logger.error(`*getStats*: ${error}`);
