@@ -107,7 +107,7 @@ router.get(
         jwt.sign(
             { userProfile: profileJson, userGuilds: {} },
             tokens.jwtToken,
-            { expiresIn: "7d" },
+            { expiresIn: "30d" },
             (err, token) => {
                 if (err) throw err;
                 res.redirect(`${tokens.redirect_front}${location}?token=${token}`);
@@ -142,7 +142,7 @@ router.post("/submit", verifyToken, (req, res) => {
         });
         console.log("INVALID TOKEN");
         return res.status(400).json({
-            error: "Invalid Token",
+            error: "Invalid Token! Please login again.",
             isSuccessful: false,
             data: {}
         });
