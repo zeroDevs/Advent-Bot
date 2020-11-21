@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const btoa = require("btoa");
 const fetch = require("node-fetch");
 const requestN = require("request");
+const { URLSearchParams } = require("url");
 
 const { catchAsync } = require("../utils");
 const { estDay, estTime } = require("../utils/date.utils");
@@ -47,17 +48,21 @@ router.get(
         const location = req.query.location;
         if (!req.query.code) throw new Error("NoCodeProvided");
         const code = req.query.code;
-        const creds = btoa(`${tokens.CLIENT_ID}:${tokens.CLIENT_SECRET}`);
-        const userToken = await fetch(
-            `https://discord.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}?location=${location}`,
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Basic ${creds}`,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
+
+        const bodyData = new URLSearchParams();
+        bodyData.append('client_id', tokens.CLIENT_ID);
+        bodyData.append('client_secret', tokens.CLIENT_SECRET);
+        bodyData.append('grant_type', 'authorization_code');
+        bodyData.append('redirect_uri', `${tokens.redirect}?location=${location}`);
+        bodyData.append('scope', 'identify guilds');
+        bodyData.append('code', code);
+
+        const userToken = await fetch('https://discordapp.com/api/oauth2/token', {
+            method: 'POST',
+            body: bodyData,
+        });
+
+
         const tokenJson = await userToken.json();
         //user profile
         const userProfile = await fetch(`http://discord.com/api/users/@me`, {
