@@ -24,7 +24,7 @@ const SolutionsService = require("../services/Solutions.service");
 //            username: "Matt",
 //            url: "https://1111.com",
 //            day: 6,
-//            thumb: "https://cdn.discordapp.com/embed/avatars/0.png",
+//            thumb: "https://cdn.discord.com/embed/avatars/0.png",
 //            lang: "Javascript",
 //            time: estDate()
 //        });
@@ -36,7 +36,7 @@ const SolutionsService = require("../services/Solutions.service");
 
 router.get("/login", (req, res) => {
     const location = req.query.location ? req.query.location : "/";
-    const baseURL = "https://discordapp.com/api/oauth2/authorize?client_id=";
+    const baseURL = "https://discord.com/api/oauth2/authorize?client_id=";
     const scope = "&scope=identify%20guilds&response_type=code&redirect_uri=";
     res.redirect(`${baseURL}${tokens.CLIENT_ID}${scope}${tokens.redirect}?location=${location}`);
 });
@@ -49,7 +49,7 @@ router.get(
         const code = req.query.code;
         const creds = btoa(`${tokens.CLIENT_ID}:${tokens.CLIENT_SECRET}`);
         const userToken = await fetch(
-            `https://discordapp.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}?location=${location}`,
+            `https://discord.com/api/oauth2/token?grant_type=authorization_code&scope=identify%20guilds&code=${code}&redirect_uri=${tokens.redirect}?location=${location}`,
             {
                 method: "POST",
                 headers: {
@@ -60,7 +60,7 @@ router.get(
         );
         const tokenJson = await userToken.json();
         //user profile
-        const userProfile = await fetch(`http://discordapp.com/api/users/@me`, {
+        const userProfile = await fetch(`http://discord.com/api/users/@me`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${tokenJson.access_token}`,
@@ -68,7 +68,7 @@ router.get(
             }
         });
 
-        const userGuilds = await fetch(`http://discordapp.com/api/users/@me/guilds`, {
+        const userGuilds = await fetch(`http://discord.com/api/users/@me/guilds`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${tokenJson.access_token}`,
@@ -82,7 +82,7 @@ router.get(
 
         const avatar =
             profileJson.avatar !== null
-                ? `https://cdn.discordapp.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
+                ? `https://cdn.discord.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
                 : `https://robohash.org/${profileJson.username}?set=set2`;
 
         //let guildCheck = checkGuilds(guildsJson);
@@ -168,9 +168,8 @@ router.post("/submit", verifyToken, (req, res) => {
                     {
                         title: `Username: ${userData.userName} \n UserId: ${userData.userId}`,
                         color: "14177041",
-                        description: `UrlSubmitted: ${
-                            userData.url
-                        } \n Est: ${estDay()} :: SubDay: ${submittedDate}`
+                        description: `UrlSubmitted: ${userData.url
+                            } \n Est: ${estDay()} :: SubDay: ${submittedDate}`
                     }
                 ]
             },
