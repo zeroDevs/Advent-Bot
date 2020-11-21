@@ -4,11 +4,11 @@ exports.aoc = (blank, day, client, stats) => {
     const spacer = "\u2002\u2002\u2002\u2002\u2002\u2002\u2002\u2002\u2002\u2002";
     const desc = [
         `This month we are doing a special coding challenge! December is the best time of the year to be a programmer since the Advent of Code begins!... You can find the challenge repo [here](https://github.com/zero-to-mastery/coding_challenge-24) \n${blank}`,
-        `\n:calendar:  [**Todays Challenge**](https://adventofcode.com/2019/day/${day})${spacer}:link: [**Submit Solution**](https://aoc.zerotomastery.io/submit)\n${blank}`,
+        `\n:calendar:  [**Today's Challenge**](https://adventofcode.com/2020/day/${day})${spacer}:link: [**Submit Your Solution**](https://aoc.zerotomastery.io/submit)\n${blank}`,
         `\n:eye: [**View Solutions**](https://aoc.zerotomastery.io/solutions)${spacer}\u2002\u2002:medal: [**View Leaderboard**](https://aoc.zerotomastery.io/leaderboard)`
     ];
     return {
-        title: `Advent of Code - ${day} Dec 2019 Recap`,
+        title: `Advent of Code - ${day} Dec 2020 Recap`,
         url: "https://aoc.zerotomastery.io",
         color: 11928601,
         desc: `${desc[0]}${desc[1]}${desc[2]}`,
