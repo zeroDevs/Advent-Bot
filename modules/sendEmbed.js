@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 
 module.exports = client => {
     client.sendEmbed = async (client, params, channel, msg) => {
-        let Embed = new Discord.RichEmbed();
+        let Embed = new Discord.MessageEmbed();
 
         if (params.author)
             Embed.setAuthor(
@@ -30,7 +30,7 @@ module.exports = client => {
     };
 
     client.editEmbed = async params => {
-        let Embed = new Discord.RichEmbed();
+        let Embed = new Discord.MessageEmbed();
 
         if (params.author)
             Embed.setAuthor(
