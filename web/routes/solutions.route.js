@@ -1,4 +1,5 @@
 const route = require("express").Router();
+const moment = require("moment");
 
 const SolutionsService = require("../services/Solutions.service");
 const RatingsService = require("../services/Ratings.service");
@@ -12,9 +13,13 @@ const RatingsService = require("../services/Ratings.service");
 route.get("/", async (req, res) => {
     const { day } = req.query;
 
+    // This need finishing, the aim is to provide the current year if one isnt provided
+    // So we can provide the data for the relevenat year. 
+    const year = req.query.year ? req.query.year : moment().format('YYYY')
+
     const solutions = day
-        ? await SolutionsService.getSolutionsForDay(day)
-        : await SolutionsService.getAllSolutions();
+        ? await SolutionsService.getSolutionsForDay(day, year)
+        : await SolutionsService.getAllSolutions(year);
 
     // const ratings = await RatingsService.getAllRatings();
 
