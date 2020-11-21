@@ -3,7 +3,7 @@ const Discord = require("discord.js");
 module.exports = client => {
     client.fetchMessages = channel => {
         return channel
-            .fetchMessages({
+            .messages.fetch({
                 limit: 100
             })
             .then(messages => {

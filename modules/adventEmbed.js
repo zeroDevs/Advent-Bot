@@ -7,23 +7,23 @@ module.exports = client => {
     client.initAdventEmbed = async () => {
         const day = new Date().getDate();
         const stats = await StatsService.getStats();
-        const blank = client.emojis.get(`650510933940240405`);
+        const blank = client.emojis.cache.get(`650510933940240405`);
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
-        const channelAoc = client.channels.find("name", "recapoftheday");
+        const channelAoc = client.channels.cache.find(channel => channel.name === "recapoftheday");
         client.sendEmbed(client, data, channelAoc);
     };
 
     client.updateAdventEmbed = async what => {
         const day = new Date().getDate();
-        const blank = client.emojis.get(`650510933940240405`);
+        const blank = client.emojis.cache.get(`650510933940240405`);
         const stats = await StatsService.getStats();
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
-        const channelAoc = client.channels.find("name", "recapoftheday");
+        const channelAoc = client.channels.cache.find(channel => channel.name === "recapoftheday");
         const newData = data;
 
         client.fetchMessages(channelAoc).then(msgs => {
             msgs.map(async e => {
-                if (!e.embeds[0] || e.embeds[0].title !== `Advent of Code - ${day} Dec 2019 Recap`)
+                if (!e.embeds[0] || e.embeds[0].title !== `Advent of Code - ${day} Dec 2020 Recap`)
                     return;
                 if (what.stats) {
                     newData.fields[2][0] = `:arrows_counterclockwise: ${what.stats[0]} Solutions`;
