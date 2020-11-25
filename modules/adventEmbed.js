@@ -6,7 +6,7 @@ const StatsService = require("../web/services/Stats.service");
 module.exports = client => {
     client.initAdventEmbed = async () => {
         const day = new Date().getDate();
-        const stats = await StatsService.getStats(moment().format('YYYY'));
+        const stats = await StatsService.getStats();
         const blank = client.emojis.cache.get(`650510933940240405`);
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
         const channelAoc = client.channels.cache.find(channel => channel.name === "recapoftheday");
@@ -16,7 +16,7 @@ module.exports = client => {
     client.updateAdventEmbed = async what => {
         const day = new Date().getDate();
         const blank = client.emojis.cache.get(`650510933940240405`);
-        const stats = await StatsService.getStats(moment().format('YYYY'));
+        const stats = await StatsService.getStats();
         const data = embedData.aoc(blank, day, moment().format("MMM Do YYYY, h:mm:ss a"), stats);
         const channelAoc = client.channels.cache.find(channel => channel.name === "recapoftheday");
         const newData = data;

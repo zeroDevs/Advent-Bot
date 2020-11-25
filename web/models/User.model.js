@@ -1,25 +1,42 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const moment = require("moment");
 
+const UserSchema = new Schema({
+    username: String, //username format -> username#discrimanator
+    userid: String,
+    point: Number,
+    badgePoint: Number,
+    avatarUrl: String,
+    isZTM: Boolean,
+    langArray: []
+});
 
-module.exports = (options) => {
+module.exports = mongoose.model("User", UserSchema);
 
-    const year = options.year ? options.year : moment().format('YYYY')
+// const mongoose = require("mongoose");
 
-    const UserSchema = new Schema({
-        username: String, //username format -> username#discrimanator
-        userid: String,
-        point: Number,
-        badgePoint: Number,
-        avatarUrl: String,
-        isZTM: Boolean,
-        langArray: []
-    });
+// const UserSchema = new mongoose.Schema({
+//     username: {
+//         type: String
+//     }, //username format -> username#discrimanator
+//     userid: {
+//         type: Number
+//     },
+//     point: {
+//         type: Number,
+//         default: 0
+//     },
+//     badgePoint: {
+//         type: Number,
+//         default: 0
+//     },
+//     avatarUrl: {
+//         type: String
+//     },
+//     langArray: {
+//         type: Array,
+//         default: []
+//     }
+// });
 
-    const yearDB = mongoose.connection.useDb(`AOC-${year}`);
-
-    return yearDB.model("User", UserSchema);
-
-
-}
+// module.exports = mongoose.model("User", UserSchema);

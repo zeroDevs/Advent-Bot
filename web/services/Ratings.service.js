@@ -6,12 +6,12 @@ class RatingsService {
         this.logger = console;
     }
 
-    async getRating(ratingId, year) {
+    async getRating(ratingId) {
         try {
-            const data = await Rating({ year }).findById(ratingId).exec();
+            const data = await Rating.findById(ratingId).exec();
             return data;
         } catch (error) {
-            this.logger.error(`*getRating*: ${error} || Year: ${year}`);
+            this.logger.error(`*getRating*: ${error}`);
         }
     }
 
@@ -24,12 +24,12 @@ class RatingsService {
         }
     }
 
-    async getAllRatings(year) {
+    async getAllRatings() {
         try {
-            const data = await Rating({ year }).find().exec();
+            const data = await Rating.find().exec();
             return data;
         } catch (error) {
-            this.logger.error(`*getAllRatings*: ${error} || Year: ${year}`);
+            this.logger.error(`*getAllRatings*: ${error}`);
         }
     }
 
@@ -75,18 +75,18 @@ class RatingsService {
 
     calculateAverage(ratings) {
         try {
-            const sum = ratings.reduce((total, rating) => total + rating.ratingScore, 0);
-            const count = ratings.length;
-            console.log(sum / count);
-            return sum / count;
+          const sum = ratings.reduce((total, rating) => total + rating.ratingScore, 0);
+          const count = ratings.length;
+          console.log(sum/count);
+          return sum / count;
         } catch (error) {
             this.logger.error(`*calculateAverage*: ${error}`);
         }
     }
 
-    async hasUserVotedOnSolution(solutionId, userId, year) {
+    async hasUserVotedOnSolution(solutionId, userId) {
         try {
-            const rating = await Rating({ year }).find({
+            const rating = await Rating.find({
                 solutionId,
                 userId
             }).exec();
