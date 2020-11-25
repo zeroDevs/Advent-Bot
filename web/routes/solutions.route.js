@@ -1,5 +1,5 @@
 const route = require("express").Router();
-const moment = require("moment");
+
 
 const SolutionsService = require("../services/Solutions.service");
 const RatingsService = require("../services/Ratings.service");
@@ -13,15 +13,11 @@ const RatingsService = require("../services/Ratings.service");
 route.get("/", async (req, res) => {
     const { day } = req.query;
 
-    // This need finishing, the aim is to provide the current year if one isnt provided
-    // So we can provide the data for the relevenat year. 
-    const year = req.query.year ? req.query.year : moment().format('YYYY')
-
     const solutions = day
-        ? await SolutionsService.getSolutionsForDay(day, year)
-        : await SolutionsService.getAllSolutions(year);
+        ? await SolutionsService.getSolutionsForDay(day, req.query.year)
+        : await SolutionsService.getAllSolutions(req.query.year);
 
-    // const ratings = await RatingsService.getAllRatings();
+    // const ratings = await RatingsService.getAllRatings(req.query.year);
 
     // const data = solutions.map(solution => {
     //     const temp = { ...solution._doc };
@@ -39,8 +35,7 @@ route.get("/", async (req, res) => {
 // add middleware so only logged in users can vote
 route.post("/vote", verifyToken, async (req, res) => {
     const { ...rating } = req.body;
-    console.log(RatingsService.isOwnRating({ ...rating }, rating.userId));
-    if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId)) {
+    if (await RatingsService.hasUserVotedOnSolution(rating.solutionId, rating.userId, req.query.year)) {
         return res.status(400).json({ error: "cannot vote twice", isSuccessful: false });
     }
     if (RatingsService.isOwnRating({ ...rating }, rating.userId)) {
@@ -63,7 +58,7 @@ route.delete("/vote/:ratingId", async (req, res) => {
     const { ratingId } = req.params;
     const { userId } = req.body;
 
-    const rating = await RatingsService.getRating(ratingId);
+    const rating = await RatingsService.getRating(ratingId, req.query.year);
     const isOwnRating = RatingsService.isOwnRating(rating, userId);
 
     if (isOwnRating) {
@@ -76,7 +71,7 @@ route.delete("/vote/:ratingId", async (req, res) => {
 
 route.get("/recent/", async (req, res) => {
     const qty = req.query.qty ? req.query.qty : 6;
-    const solutions = await SolutionsService.getRecentSolutions(qty);
+    const solutions = await SolutionsService.getRecentSolutions(qty, req.query.year);
 
     if (solutions) return res.status(200).json(solutions);
     return res.sendStatus(500);
@@ -84,7 +79,7 @@ route.get("/recent/", async (req, res) => {
 
 route.get("/top", async (req, res) => {
     const qty = req.query.qty ? req.query.qty : 6;
-    const solutions = await SolutionsService.getTopSolutions(qty);
+    const solutions = await SolutionsService.getTopSolutions(qty, req.query.year);
 
     if (solutions) return res.status(200).json(solutions);
     return res.sendStatus(500);

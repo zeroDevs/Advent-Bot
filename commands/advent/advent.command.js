@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const moment = require("moment");
 
 exports.run = async (client, message, args) => {
     // eslint-disable-line no-unused-vars
@@ -11,8 +12,8 @@ exports.run = async (client, message, args) => {
     else {
         const StatsService = require("../../web/services/Stats.service");
         const SolutionsService = require("../../web/services/Solutions.service");
-        const stats = await StatsService.getStats();
-        const recent = await SolutionsService.getRecentSolutions(6);
+        const stats = await StatsService.getStats(moment().format('YYYY'));
+        const recent = await SolutionsService.getRecentSolutions(6, moment().format('YYYY'));
         const rSols = [];
         await recent.map(r => rSols.push({ name: r.userName, url: r.url }));
         client.updateAdventEmbed({

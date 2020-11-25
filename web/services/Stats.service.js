@@ -8,13 +8,13 @@ class StatsService {
         this.logger = console;
     }
 
-    async getStats() {
+    async getStats(year) {
         try {
             const dayNumber = dateUtils.estDay();
-            const totalSolutions = await SolutionsService.getAllSolutions();
-            const todaysSolutions = await SolutionsService.getSolutionsForDay(dayNumber);
-            const totalUsers = await UsersService.activeUsers();
-            const authedUsers = await UsersService.allUsers();
+            const totalSolutions = await SolutionsService.getAllSolutions(year);
+            const todaysSolutions = await SolutionsService.getSolutionsForDay(dayNumber, year);
+            const totalUsers = await UsersService.activeUsers(year);
+            const authedUsers = await UsersService.allUsers(year);
             const langStats = {
                 Javascript: 0,
                 Python: 0,
