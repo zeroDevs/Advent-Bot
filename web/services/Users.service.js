@@ -6,12 +6,12 @@ class UsersService {
         this.logger = console;
     }
 
-    async allUsers(username) {
+    async allUsers(year) {
         try {
-            const user = User.find({}).exec();
+            const user = User({ year }).find({}).exec();
             return user;
         } catch (error) {
-            this.logger.error(`*allUsers*: ${error}`);
+            this.logger.error(`*allUsers*: ${error} | Year: ${year}`);
         }
     }
 
@@ -54,10 +54,10 @@ class UsersService {
 
     async activeUsers(username) {
         try {
-            const user = User.find({ point: { $gt: 0 } }).exec();
+            const user = User({ year }).find({ point: { $gt: 0 } }).exec();
             return user;
         } catch (error) {
-            this.logger.error(`*activeUsers*: ${error}`);
+            this.logger.error(`*activeUsers*: ${error} || Year: ${year}`);
         }
     }
 }
