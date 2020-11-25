@@ -1,6 +1,7 @@
 const Solution = require("../models/Solution.model");
+
 class SolutionsService {
-    constructor() {
+    constructor(logger) {
         // this.logger = logger; // switch to use real logger
         this.logger = console;
     }
@@ -14,12 +15,12 @@ class SolutionsService {
         }
     }
 
-    async getAllSolutions(year) {
+    async getAllSolutions() {
         try {
-            const data = await Solution({ year }).find().sort({ Time: -1 });
+            const data = await Solution.find().sort({ Time: -1 });
             return data;
         } catch (error) {
-            this.logger.error(`*getAllSolutions*: ${error} | Year: ${year}`);
+            this.logger.error(`*getAllSolutions*: ${error}`);
         }
     }
 
@@ -32,12 +33,12 @@ class SolutionsService {
         }
     }
 
-    async getSolutionsForDay(dayNumber, year) {
+    async getSolutionsForDay(dayNumber) {
         try {
-            const data = await Solution({ year }).find({ dayNumber }).exec();
+            const data = await Solution.find({ dayNumber }).exec();
             return data;
         } catch (error) {
-            this.logger.error(`*getSolutionsForDay*: ${error} | Year: ${year}`);
+            this.logger.error(`*getSolutionsForDay*: ${error}`);
         }
     }
 
@@ -81,25 +82,25 @@ class SolutionsService {
         }
     }
 
-    async getRecentSolutions(qty, year) {
+    async getRecentSolutions(qty) {
         try {
-            const data = await Solution({ year }).find()
+            const data = await Solution.find()
                 .sort({ Time: -1 })
                 .limit(parseInt(qty));
             return data;
         } catch (error) {
-            this.logger.error(`*recentSolution*: ${error} || Year: ${year}`);
+            this.logger.error(`*recentSolution*: ${error}`);
         }
     }
 
-    async getTopSolutions(qty, year) {
+    async getTopSolutions(qty) {
         try {
-            const data = await Solution({ year }).find()
+            const data = await Solution.find()
                 .sort({ averageRating: -1 })
                 .limit(parseInt(qty));
             return data;
         } catch (error) {
-            this.logger.error(`*topSolution*: ${error} || Year: ${year}`);
+            this.logger.error(`*topSolution*: ${error}`);
         }
     }
 }

@@ -31,7 +31,7 @@ module.exports = client => {
     app.use("/", indexRoute);
     app.use(
         "/api",
-        function (req, res, next) {
+        function(req, res, next) {
             req.client_config = {
                 client: client
             };
@@ -43,7 +43,7 @@ module.exports = client => {
     app.use("/users", usersRoute);
     app.use("/stats", statsRoute);
 
-    app.listen(port, function () {
+    app.listen(port, function() {
         console.log("Advent - Webserver is running on port:", port);
     });
 };
