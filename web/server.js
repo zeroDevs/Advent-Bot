@@ -12,6 +12,7 @@ const apiRoute = require("./routes/authApi.route");
 const solutionsRoute = require("./routes/solutions.route");
 const usersRoute = require("./routes/users.route");
 const statsRoute = require("./routes/stats.route");
+const archiveRoute = require("./routes/archive.route");
 // const authRoute = require("../routes/auth.route") // Future implementation
 
 app.use(bodyParser.json());
@@ -42,6 +43,7 @@ module.exports = client => {
     app.use("/solutions", solutionsRoute);
     app.use("/users", usersRoute);
     app.use("/stats", statsRoute);
+    app.use("/archive", archiveRoute);
 
     app.listen(port, function() {
         console.log("Advent - Webserver is running on port:", port);
