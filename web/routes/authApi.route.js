@@ -87,7 +87,7 @@ router.get(
 
         const avatar =
             profileJson.avatar !== null
-                ? `https://cdn.discord.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
+                ? `https://cdn.discordapp.com/avatars/${profileJson.id}/${profileJson.avatar}.png?size=1024`
                 : `https://robohash.org/${profileJson.username}?set=set2`;
 
         //let guildCheck = checkGuilds(guildsJson);
