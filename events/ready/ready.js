@@ -9,7 +9,7 @@ module.exports = async client => {
     try {
         let link = await client.generateInvite();
         console.log(link);
-        // client.statsCron();
+        client.statsCron();
     } catch (e) {
         console.log(e.stack);
     }
